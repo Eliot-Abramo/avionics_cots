@@ -1,6 +1,0 @@
-bool activate
-string pipeline_name        # can take "rock" or "sand"
-
----
-
-bool success
