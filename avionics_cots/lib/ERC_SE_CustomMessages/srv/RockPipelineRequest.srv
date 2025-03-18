@@ -1,0 +1,11 @@
+
+
+---
+
+float32 x
+float32 y
+float32 z
+float32 min_diameter
+float32 max_diameter
+float32 height
+bool success
