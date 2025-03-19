@@ -1,4 +1,6 @@
-#!/bin/bash
+
+# @file create_custom_msg.sh
+# @author Eliot Abramo
 
 # Set the source file path.
 SOURCE="lib/Packets/generate_structs.cpp"
@@ -6,9 +8,11 @@ SOURCE="lib/Packets/generate_structs.cpp"
 # Set the output executable name.
 EXE="generate_structs"
 
-# Compile the source file with C++17.
-echo "Compiling $SOURCE..."
-g++ -std=c++17 -o "$EXE" "$SOURCE"
+COMPILE_FLAGS="-std=c++17 -DGENERATE_MSG"
+
+# Compile the source file with C++17 and the macro definition.
+echo "Compiling $SOURCE with GENERATE_MSG..."
+g++ $COMPILE_FLAGS -o "$EXE" "$SOURCE"
 if [ $? -ne 0 ]; then
     echo "Compilation failed!"
     exit 1

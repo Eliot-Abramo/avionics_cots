@@ -1,3 +1,10 @@
+/**
+ * @file generate_structs.hpp
+ * @author Eliot Abramo
+*/
+
+#ifdef GENERATE_MSG //defined in bash script
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -21,8 +28,7 @@ struct Field {
 std::unordered_map<std::string, std::string> TYPE_MAP = {
     {"uint16", "uint16_t"},
     {"uint8", "uint8_t"},
-    {"float32", "float"},
-    {"float64", "double"},
+    {"float", "double"},
     {"bool","string"},
 };
 
@@ -45,9 +51,16 @@ void generate_message_file(std::string folderPath, std::string outputFilename){
         return;
     }
     
+    outfile << "/** \n";
+    outfile << " * @file packet_definition.hpp \n";
+    outfile << " * @author Eliot Abramo \n";
+    outfile << "*/ \n\n";
+
     // Write the header guard and include <iostream>.
-    outfile << "#pragma once\n\n";
-    outfile << "#include <iostream>\n\n";
+    outfile << "#ifndef PACKET_DEFINITION_H\n";
+    outfile << "#define PACKET_DEFINITION_H\n\n";
+    outfile << "#include <iostream>\n";
+    outfile << "#include <packet_id.hpp>\n\n";
     
     // Iterate through all files in the folder.
     for (const auto &entry : std::filesystem::directory_iterator(folderPath)) {
@@ -82,6 +95,14 @@ void generate_message_file(std::string folderPath, std::string outputFilename){
                     type = "uint8_t";
                 } else if (type == "uint16") {
                     type = "uint16_t";
+                } else if (type == "float32[4]"){
+                    type = "float";
+                    name = name +"[4]";
+                } else if (type == "float32") {
+                    type = "float";
+                } else if (type == "bool[4]"){
+                    type = "bool";
+                    name = name + "[4]";
                 }
                 
                 fields.push_back({type, name});
@@ -98,12 +119,14 @@ void generate_message_file(std::string folderPath, std::string outputFilename){
             std::cout << "Processed file: " << entry.path() << std::endl;
         }
     }
-    
+    outfile << "#endif /* PACKET_DEFINITION_H */";
     outfile.close();
     std::cout << "Generated aggregated header file: " << outputFilename << std::endl;
 }
 
 int main(){
-    generate_message_file("lib/ERC_SE_CustomMessages/msg/not_hd", "lib/Packets/packet_definition.hpp");
+    generate_message_file("lib/ERC_SE_CustomMessages/msg/avionics", "lib/Packets/packet_definition.hpp");
     return 0;
 }
+
+#endif

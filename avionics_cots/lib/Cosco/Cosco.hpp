@@ -6,6 +6,7 @@
 #define COSCO_HPP
 
 #include "packet_definition.hpp"
+#include "ADS1234.hpp"
 
 class Cosco {
 public:

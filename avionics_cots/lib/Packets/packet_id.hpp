@@ -6,7 +6,7 @@
 #include "packet_definition.hpp"
 
 // Mass packets
-#define Mass_ID (1);
+#define MassData_ID (1);
 #define MassConfigRequest_ID (2);
 #define MassCalib_ID (3);
 #define MassConfig_ID (4);

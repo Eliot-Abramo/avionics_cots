@@ -6,6 +6,7 @@
 #define ADS1234_INC_ADS1234_HPP_
 
 #include <stdint.h>
+#include <stdio.h>
 
 enum ERROR_t {
 	NoERROR,
@@ -33,6 +34,20 @@ enum Channel{
 	AIN2 = 2,
 	AIN3 = 3,
 	AIN4 = 4
+};
+
+struct MassData {
+    float mass[4];
+    char* toString(char* buffer) {
+		sprintf(buffer, "CH1: %+.3f [g] \t CH2: %+.3f [g] \t CH3: %+.3f [g] \t CH4: %+.3f [g]", mass[0], mass[1], mass[2], mass[3]);
+		return buffer;
+	}
+
+    uint8_t* toArray(uint8_t* buffer){
+    	for(int i = 0; i < 4; ++i)
+    		*(float*)(buffer + i * 4) = mass[i];
+        return buffer;
+    }
 };
 
 class ADS1234

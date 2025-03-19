@@ -10,22 +10,39 @@
 
 class SerialMonitor {
 public:
-    // Constructor allows setting a custom baud rate (default 115200)
+    /**
+     * @brief Constructor allows setting a custom baud rate (default 115200) 
+     * 
+     * @param baudRate
+     * @return null
+     */
     SerialMonitor(unsigned long baudRate = 115200);
 
-    // Initialize the serial communication.
+    /**
+     * @brief Initialize the serial communication
+     * @return null
+     */
     void begin();
     
-    // Log a simple string message.
+    /**
+     * @brief Log a simple string message
+     * 
+     * @param message 
+     */
     void log(const String &message);
     
-    // Log a formatted message (like printf).
-    // void log(const char* format);
-
-    // Log a debug message with a prefix.
+    /**
+     * @brief Log a debug message with a prefix.
+     * 
+     * @param message 
+     */
     void debug(const String &message);
 
-    // Log an error message with a prefix.
+    /**
+     * @brief Log an error message with a prefix.
+     * 
+     * @param message 
+     */
     void error(const String &message);
     
 private:

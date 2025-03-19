@@ -1,16 +1,19 @@
-#pragma once
+/** 
+ * @file packet_definition.hpp 
+ * @author Eliot Abramo 
+*/ 
+
+#ifndef PACKET_DEFINITION_H
+#define PACKET_DEFINITION_H
 
 #include <iostream>
+#include <packet_id.hpp>
 
 struct LEDMessage {
     uint8_t low;
     uint8_t high;
     uint8_t system;
     uint8_t mode;
-};
-
-struct ScFSMStatusDrill {
-    int8 mode;
 };
 
 struct ServoConfigRequestMCU {
@@ -23,10 +26,10 @@ struct ServoConfigRequestMCU {
 
 struct ServoConfigRequestJetson {
     uint16_t destination_id;
-    float32[4] min_duty;
-    float32[4] max_duty;
-    float32[4] min_angles;
-    float32[4] max_angles;
+    float min_duty[4];
+    float max_duty[4];
+    float min_angles[4];
+    float max_angles[4];
     bool remote_command;
     bool set_min_duty;
     bool set_max_duty;
@@ -34,19 +37,12 @@ struct ServoConfigRequestJetson {
     bool set_max_angles;
 };
 
-struct Motorcmds {
-    string modedeplacement;
-    string info;
-    float64[4] drive;
-    float64[4] steer;
-};
-
 struct ServoConfigResponse {
     uint16_t id;
-    float32[4] min_duty;
-    float32[4] max_duty;
-    float32[4] min_angles;
-    float32[4] max_angles;
+    float min_duty[4];
+    float max_duty[4];
+    float min_angles[4];
+    float max_angles[4];
     bool remote_command;
     bool set_min_duty;
     bool set_max_duty;
@@ -57,48 +53,49 @@ struct ServoConfigResponse {
 
 struct FourInOne {
     uint16_t id;
-    float32 temperature;
-    float32 moisture;
-    float32 conductivity;
-    float32 ph;
+    float temperature;
+    float moisture;
+    float conductivity;
+    float ph;
 };
 
 struct ServoResponse {
     uint16_t id;
     uint8_t channel;
-    float32 angle;
+    float angle;
     bool success;
 };
 
-struct MassArray {
-    uint16_t id;
-    float32[4] mass;
-};
-
-struct ScMotorCmds {
-    bool send_pos;
-    bool send_vel;
-    float64 position;
-    float64 velocity;
-};
-
-struct Wheelstatus {
-    float64[4] data;
-    bool[8] state;
-    float64[8] current;
-};
-
-struct MassConfigRequestJetson {
+struct MassConfigPacket {
     uint16_t destination_id;
-    float32[4] offset;
-    float32[4] scale;
-    float32 alpha;
-    bool[4] enabled_channels;
+    float offset[4];
+    float scale[4];
+    float alpha;
+    bool enabled_channels[4];
     bool remote_command;
     bool set_offset;
     bool set_scale;
     bool set_alpha;
     bool set_channels_status;
+};
+
+struct MassConfigResponsePacket {
+    uint16_t id;
+    float offset[4];
+    float scale[4];
+    float alpha;
+    bool enabled_channels[4];
+    bool remote_command;
+    bool set_offset;
+    bool set_scale;
+    bool set_alpha;
+    bool set_channels_status;
+    bool success;
+};
+
+struct MassArray {
+    uint16_t id;
+    float mass[4];
 };
 
 struct NPK {
@@ -108,46 +105,26 @@ struct NPK {
     uint16_t potassium;
 };
 
-struct MassConfigResponse {
+struct AngleArray {
     uint16_t id;
-    float32[4] offset;
-    float32[4] scale;
-    float32 alpha;
-    bool[4] enabled_channels;
-    bool remote_command;
-    bool set_offset;
-    bool set_scale;
-    bool set_alpha;
-    bool set_channels_status;
+    float angles[4];
+};
+
+struct MassCalibScale {
+    uint16_t destination_id;
+    uint8_t channel;
+    float expected_weight;
+};
+
+struct ServoRequest {
+    float angle;
+};
+
+struct LEDResponse {
     bool success;
 };
 
-struct ScDrillCmds {
-    string mode;
-    bool send_parameter;
-    float64 rotation_speed;
-};
-
-struct NavFeedback {
-    float32 distance_remaining;
-    string status;
-};
-
-struct MotorStatus {
-    bool[8] state;
-    float64[8] current;
-    float64[8] average_current;
-    float64[4] position;
-    float64[4] velocity;
-    bool[8] fault_state;
-};
-
-struct AngleArray {
-    uint16_t id;
-    float32[4] angles;
-};
-
-struct MassConfigRequestMCU {
+struct MassConfigRequestPacket {
     uint16_t id;
     bool req_offset;
     bool req_scale;
@@ -155,40 +132,9 @@ struct MassConfigRequestMCU {
     bool req_channels_status;
 };
 
-struct ScMotorStatus {
-    float64 encoder;
-    float64 distance;
-    float64 trans_current;
-    float64 screw_current;
-    float64 vel;
-    bool motor_screw;
-    bool motor_trans;
-};
-
-struct Statussteering {
-    int64[4] steer;
-};
-
-struct NodeStateArray {
-    bool[] node_state;
-};
-
-struct MassCalibScale {
-    uint16_t destination_id;
-    uint8_t channel;
-    float32 expected_weight;
-};
-
-struct ServoRequest {
-    float32 angle;
-};
-
-struct LEDResponse {
-    bool success;
-};
-
 struct MassCalibOffset {
     uint16_t destination_id;
     uint8_t channel;
 };
 
+#endif /* PACKET_DEFINITION_H */
