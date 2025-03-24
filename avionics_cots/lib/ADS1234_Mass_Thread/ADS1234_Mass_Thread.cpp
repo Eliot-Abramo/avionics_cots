@@ -6,7 +6,7 @@
 #include <iostream>
 #include "ADS1234_Mass_Thread.hpp"
 
-#define PIN_SCLK 22
+#define PIN_SCLK 17
 #define PIN_PDWN 19
 #define PIN_SPEED 18
 #define PIN_GAIN0 2
