@@ -69,12 +69,15 @@ void ADS1234Thread::request_config()
 	mass_config_packet.req_channels_status = true;
 
 	mass_handler.sendMassConfigRequestPacket(&mass_config_packet);
-	// MAKE_IDENTIFIABLE(mass_config_packet);
-	// MAKE_RELIABLE_MCU(mass_config_packet);
-	// Telemetry::set_id(JETSON_NODE_ID);
-	// FDCAN1_network->send(&mass_config_packet);
-	// FDCAN2_network->send(&mass_config_packet);
-	// portYIELD();
+	/*
+	MAKE_IDENTIFIABLE(mass_config_packet);
+	MAKE_RELIABLE_MCU(mass_config_packet);
+	Telemetry::set_id(JETSON_NODE_ID);
+	FDCAN1_network->send(&mass_config_packet);
+	FDCAN2_network->send(&mass_config_packet);
+	portYIELD();
+	*/
+	
 }
 
 void ADS1234Thread::start_calib_offset(uint32_t num_samples, uint8_t channel)
@@ -136,7 +139,7 @@ void ADS1234Thread::loop()
 {
     // Request configuration
     if((esp_timer_get_time() - config_time > config_req_interval) && !configured) {
-		request_config();
+		//request_config();
 	}
 
 	// Calibrate every 90 seconds
@@ -145,11 +148,11 @@ void ADS1234Thread::loop()
 	ERROR_t err_ch3 = NoERROR;
 	ERROR_t err_ch4 = NoERROR;
 
-	if(esp_timer_get_time()-start > 90000){
-   	calibrating = true;
-   	start = esp_timer_get_time();
-   	mass_monitor.log("Calibrating mass sensor...");
-   }
+// 	if(esp_timer_get_time()-start > 90000){
+//    	calibrating = true;
+//    	start = esp_timer_get_time();
+//    	mass_monitor.log("Calibrating mass sensor...");
+//    }
 
    #ifdef USE_LOW_PASS_FILTER
 	if (enabled_channels[0])
@@ -194,7 +197,7 @@ void ADS1234Thread::loop()
     	calibrating = false;
     }
 
-	if((err_ch1 == NoERROR) && (err_ch2 == NoERROR) && (err_ch3 == NoERROR) && (err_ch4 == NoERROR)) {
+	 if(err_ch1 == NoERROR) {
 		String message = mass_data.toString(cbuf);
         mass_monitor.log(message);
 	
@@ -224,13 +227,18 @@ void ADS1234Thread::loop()
 		}
 
 		mass_data.toArray((uint8_t*) &mass_data);
-		// MAKE_IDENTIFIABLE(mass_packet);
-		// MAKE_RELIABLE_MCU(mass_packet);
-		// Telemetry::set_id(JETSON_NODE_ID);
-		// FDCAN1_network->send(&mass_packet);
-		// FDCAN2_network->send(&mass_packet);
-		// portYIELD();
+		/*
+		MAKE_IDENTIFIABLE(mass_packet);
+		MAKE_RELIABLE_MCU(mass_packet);
+		Telemetry::set_id(JETSON_NODE_ID);
+		FDCAN1_network->send(&mass_packet);
+		FDCAN2_network->send(&mass_packet);
+		portYIELD();
+		*/
+		
 		mass_handler.sendMassDataPacket(&mass_data);
+		String data = mass_data.toString(cbuf);
+		Serial.println(data);
 
 	} else {
 		mass_monitor.log("Thread aborted");

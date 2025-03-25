@@ -223,7 +223,7 @@ ERROR_t ADS1234::read(Channel channel, long& value, bool calibrating)
     if(channel != lastChannel)
     {
         setChannel(channel);
-        if(_speed = FAST)
+        if(_speed == FAST)
             SettlingTimeAfterChangeChannel = 55;
         else
             SettlingTimeAfterChangeChannel = 405;
@@ -239,7 +239,7 @@ ERROR_t ADS1234::read(Channel channel, long& value, bool calibrating)
     */
    if(calibrating)
    {
-        if(_speed = FAST)
+        if(_speed == FAST)
             waitingTime = 150;
         else
             waitingTime = 850;

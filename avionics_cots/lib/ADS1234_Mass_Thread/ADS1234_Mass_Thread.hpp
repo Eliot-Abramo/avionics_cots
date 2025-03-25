@@ -52,11 +52,11 @@ private:
 
     ADS1234* mass_sensor;
     
-    bool enabled_channels[4] = {false, true, false, false};
+    bool enabled_channels[4] = {true, true, true, true};
     float alpha = 0.8;
     uint16_t  num_averages = 10;
     long unsigned int start = 0;
-    bool calibrating = true;
+    bool calibrating = false;
 
     long unsigned int config_time = 0;
     long unsigned int config_req_interval = 5000;
