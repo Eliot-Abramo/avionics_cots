@@ -242,7 +242,8 @@ double HX711::get_value(byte times) {
 }
 
 float HX711::get_units(byte times) {
-	return get_value(times) / SCALE;
+	//return (read_average(times) / SCALE) - OFFSET; //changed
+	return get_value(times)/ SCALE; //original
 }
 
 void HX711::tare(byte times) {

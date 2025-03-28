@@ -6,6 +6,15 @@
 #include <iostream>
 #include "Mass_thread.hpp"
 
+/**
+ * Independently tested functionalities:
+ * - init/loop
+ * - start_calib_offset
+ * - start_calib_scale
+ * - send_calib_offset (used by start_calib_offset)
+ * - send_calib_scale (used by start_calib_scale)
+ */
+
 
 HX711Thread* MassSensorInterface = nullptr;
 static char cbuf[256];
@@ -43,7 +52,6 @@ void HX711Thread::init()
 // Sends mass configuration packet
 void HX711Thread::request_config()
 {
-	mass_monitor.log("TEST1 FAILED");
   	mass_monitor.log("Requesting configuration...");
     config_time = esp_timer_get_time();
 	mass_config_packet.req_offset = true;
@@ -54,36 +62,56 @@ void HX711Thread::request_config()
 
 void HX711Thread::start_calib_offset(uint32_t num_samples)
 {
-  mass_monitor.log("TEST1 FAILED");
-  if(!calibrating_offset) {
-  if(!calibrating_scale) {
-    cnt_mass_offset = 0;
 
-    mass_avg_offset = 0;
+	if (!calibrating_offset) {
+		if (!calibrating_scale) {
 
-    calib_samples_offset = num_samples;
-    calibrating_offset = true;
-    mass_monitor.log("Starting offset calibration");
-    } else {
-      mass_monitor.log("Cannot calibrate both offset and scale at the same time");
-    }
+			//Reset values
+			cnt_mass_offset = 0;
+			mass_avg_offset = 0;
+
+			//Set the number of samples to take
+      		calib_samples_offset = num_samples;
+
+			//Enable offset calibration
+			calibrating_offset = true;
+
+			//Reset the current offset
+			mass_sensor->set_offset(0);
+
+			mass_monitor.log("Starting offset calibration...");
+	  	} else {
+		  mass_monitor.log("Cannot calibrate both offset and scale at the same time");
+		}
   } else {
-    mass_monitor.log("Another offset calibration is already active. Aborting calculation...");
+      mass_monitor.log("Another offset calibration is already active. Aborting calibration...");
   }
 }
 
 void HX711Thread::start_calib_scale(uint32_t num_samples, float calib_weight) 
 {
-	mass_monitor.log("TEST1 FAILED");	
+
 	if (!calibrating_scale) {
 		if (!calibrating_offset) {
+
+			//Reset values
 			cnt_mass_scale = 0;
-			this->calib_weight = calib_weight;
 			mass_avg_scale = 0;
-      calib_samples_scale = num_samples;
+
+			//Update the calibration known weight
+			this->calib_weight = calib_weight;
+
+			//Set the number of samples to take
+      		calib_samples_scale = num_samples;
+
+			//Enable scale calibration
 			calibrating_scale = true;
+
+			//Reset the current scale
+			mass_sensor->set_scale(1.0);
+
 			mass_monitor.log("Starting scale calibration...");
-	  } else {
+	  	} else {
 		  mass_monitor.log("Cannot calibrate both offset and scale at the same time");
 		}
   } else {
@@ -97,23 +125,17 @@ void HX711Thread::loop()
   	if((esp_timer_get_time() - config_time > config_req_interval) && !configured) {
 		//request_config();
 	}
-
- 	if(esp_timer_get_time()-start > 90000){
-    	calibrating = true;
-    	start = esp_timer_get_time();
-    	mass_monitor.log("Calibrating mass sensor...");
-    }
-
-    if (calibrating) {
-    	calibrating = false;
-    }
 	*/
+
+	// Get mass data
 	mass_data.mass = mass_sensor->get_units(10);
 
+	// Format data to print or send in a packet
+	mass_data.toArray((uint8_t*) &mass_data);		
 	String message = mass_data.toString(cbuf);
-    mass_monitor.log(message);
-	
-	// Calibration
+
+	// Calibration$
+	// Accumulate values for offset and scale calibration
 	if(calibrating_offset) {
 		cnt_mass_offset += 1;
 		mass_sum_offset += mass_sensor->get_units(10);
@@ -124,6 +146,7 @@ void HX711Thread::loop()
 		mass_sum_scale += mass_sensor->get_units(10);
 	}
 
+	//Sending cummulative values
 	if(calibrating_offset && (cnt_mass_offset > calib_samples_offset)) {
 		send_calib_offset();
 	}
@@ -132,38 +155,45 @@ void HX711Thread::loop()
 		send_calib_scale();
 	}
 
-	mass_data.toArray((uint8_t*) &mass_data);		
-	mass_handler.sendMassDataPacket(&mass_data);
-	String data = mass_data.toString(cbuf);
-	Serial.println(data);
+	
+	mass_monitor.log(message);
+	//mass_handler.sendMassDataPacket(&mass_data);
+
 }
 
 
 void HX711Thread::send_calib_offset() {
-	mass_monitor.log("TEST1 FAILED");
 	// Compute average value
-	mass_avg_offset = mass_sum_offset/cnt_mass_offset;
+	if ((cnt_mass_offset != 0)) {
+		mass_avg_offset = mass_sum_offset/cnt_mass_offset;
+	}
 
-
+	//Deactivate offset calibration
 	calibrating_offset = false;
+
+	//Reset values to begin a new offset averaging calculation when needed
 	cnt_mass_offset = 0;
 	mass_sum_offset = 0;
 
+	//Set the value we computed
+	mass_sensor->set_offset(static_cast<long>(mass_avg_offset));
+
+	//Put on a packet to notify CS that we set the offset
 	mass_calib_offset_response_packet.set_offset = true;
 
-  	mass_sensor->set_offset(mass_avg_offset);
-
+	//Actually put the offset in the packet
 	mass_calib_offset_response_packet.offset = mass_sensor->get_offset();
 
-	snprintf(cbuf, sizeof(cbuf), "Computed mass sensor offset: [%.3f]", mass_sensor->get_offset());
+	//Print the offset value
+	snprintf(cbuf, sizeof(cbuf), "Computed mass sensor offset: [%ld]", mass_sensor->get_offset());
 	String message = String(cbuf);
-
 	mass_monitor.log(message);
-  	mass_handler.sendMassConfigResponsePacket(&mass_calib_offset_response_packet);
+
+	//Send the packet to CS
+  	//mass_handler.sendMassConfigResponsePacket(&mass_calib_offset_response_packet);
 }
 
 void HX711Thread::send_calib_scale() {
-	mass_monitor.log("TEST1 FAILED");
 
 	// Compute average value
 
@@ -171,21 +201,28 @@ void HX711Thread::send_calib_scale() {
 		mass_avg_scale = mass_sum_scale/(cnt_mass_scale*calib_weight);
 	}
 
-
+	//Deactivate scale calibration
 	calibrating_scale = false;
+
+	//Reset values to begin a new scale averaging calculation when needed
 	cnt_mass_scale = 0;
 	mass_sum_scale = 0;
 
-	mass_calib_scale_response_packet.set_scale = true;
-
+	//Set the value we computed
 	mass_sensor->set_scale(mass_avg_scale);
 
+	//Put on a packet to notify CS that we set the scale
+	mass_calib_scale_response_packet.set_scale = true;
+
+	//Actually put the scale in the packet
 	mass_calib_scale_response_packet.scale = mass_sensor->get_scale();
 
+	//Print the scale value
 	snprintf(cbuf, sizeof(cbuf), "Computed mass sensor scale: [%.3f]", mass_sensor->get_scale());
 	
 	String message = String(cbuf);
 	mass_monitor.log(message);
 
-	mass_handler.sendMassConfigResponsePacket(&mass_calib_scale_response_packet);
+	//Send the packet to CS
+	//mass_handler.sendMassConfigResponsePacket(&mass_calib_scale_response_packet);
 }
