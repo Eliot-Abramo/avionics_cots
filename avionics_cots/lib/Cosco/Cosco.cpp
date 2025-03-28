@@ -65,7 +65,7 @@ void Cosco::sendMassDataPacket(MassData *responsePacket)
     Serial.write(packetBuffer, sizeof(MassData));
 }
 
-uint8_t Cosco::receive(void* packet)
+void Cosco::receive(void* packet)
 {
     uint8_t packet_id = 0; // Variable to hold the packet ID
     // Check if data is available
@@ -90,9 +90,6 @@ uint8_t Cosco::receive(void* packet)
                 break;
             }
         }
-        return packet_id;
-        // For the mass only the config from the CS is needed so only need to receive MassConfigPackets 
     }
-    return 0;
 }
 

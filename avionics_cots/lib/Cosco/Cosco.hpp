@@ -89,9 +89,9 @@ public:
      * @param configPacket 
      * @param requestPacket 
      * @param responsePacket 
-     * @retun uint8_t: packet received
+     * @return null
      */    
-    uint8_t receive(void* packet);
+    void receive(void* packet);
 };
 
 #endif /* COSCO_HPP */
