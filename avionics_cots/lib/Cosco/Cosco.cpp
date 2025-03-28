@@ -6,9 +6,6 @@
 #include <Wire.h>
 #include <Arduino.h>
 
-#include "ADS1234.hpp"
-#include "packet_definition.hpp"
-#include "packet_id.hpp"
 
 Cosco::Cosco()
 {

@@ -35,7 +35,7 @@ struct LEDResponse {
 
 struct MassArray {
     uint16_t id;
-    float mass[4];
+    float mass;
 };
 
 struct MassCalibOffset {
@@ -66,21 +66,15 @@ struct MassConfigRequestPacket {
     uint16_t id;
     bool req_offset;
     bool req_scale;
-    bool req_alpha;
-    bool req_channels_status;
+    bool req_status;
 };
 
 struct MassConfigResponsePacket {
     uint16_t id;
-    float offset[4];
-    float scale[4];
-    float alpha;
-    bool enabled_channels[4];
-    bool remote_command;
+    float offset;
+    float scale;
     bool set_offset;
     bool set_scale;
-    bool set_alpha;
-    bool set_channels_status;
     bool success;
 };
 

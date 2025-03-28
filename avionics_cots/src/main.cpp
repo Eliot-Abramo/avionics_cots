@@ -3,15 +3,15 @@
  * @author Eliot Abramo
 */
 #include <Arduino.h>
-#include "ADS1234.hpp"
-#include "ADS1234_Mass_Thread.hpp"
+#include "Mass_thread.hpp"
 
-static ADS1234Thread mass_thread;
+//static HX711Thread mass_thread;
+HX711Thread* mass_thread = new HX711Thread();
 
 void setup() {
-  mass_thread.init();
+  mass_thread->init();
 }
 
 void loop() {
-  mass_thread.loop();
+  mass_thread->loop();
 }
