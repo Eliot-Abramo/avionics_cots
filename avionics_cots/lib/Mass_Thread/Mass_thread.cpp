@@ -43,7 +43,8 @@ void HX711Thread::init()
 // Sends mass configuration packet
 void HX711Thread::request_config()
 {
-  mass_monitor.log("Requesting configuration...");
+	mass_monitor.log("TEST1 FAILED");
+  	mass_monitor.log("Requesting configuration...");
     config_time = esp_timer_get_time();
 	mass_config_packet.req_offset = true;
 	mass_config_packet.req_scale = true;
@@ -53,6 +54,7 @@ void HX711Thread::request_config()
 
 void HX711Thread::start_calib_offset(uint32_t num_samples)
 {
+  mass_monitor.log("TEST1 FAILED");
   if(!calibrating_offset) {
   if(!calibrating_scale) {
     cnt_mass_offset = 0;
@@ -72,6 +74,7 @@ void HX711Thread::start_calib_offset(uint32_t num_samples)
 
 void HX711Thread::start_calib_scale(uint32_t num_samples, float calib_weight) 
 {
+	mass_monitor.log("TEST1 FAILED");	
 	if (!calibrating_scale) {
 		if (!calibrating_offset) {
 			cnt_mass_scale = 0;
@@ -89,27 +92,23 @@ void HX711Thread::start_calib_scale(uint32_t num_samples, float calib_weight)
 }
 
 void HX711Thread::loop()
-{
+{	/*
     // Request configuration
-  if((esp_timer_get_time() - config_time > config_req_interval) && !configured) {
+  	if((esp_timer_get_time() - config_time > config_req_interval) && !configured) {
 		//request_config();
-		calibrating = true;
-    	start = esp_timer_get_time();
-    	mass_monitor.log("Calibrating mass sensor...");
 	}
 
  	if(esp_timer_get_time()-start > 90000){
-    	//calibrating = true;
-    	//start = esp_timer_get_time();
-    	//mass_monitor.log("Calibrating mass sensor...");
+    	calibrating = true;
+    	start = esp_timer_get_time();
+    	mass_monitor.log("Calibrating mass sensor...");
     }
 
     if (calibrating) {
     	calibrating = false;
-		configured = true;
     }
-
-	mass_sensor->get_units(10);
+	*/
+	mass_data.mass = mass_sensor->get_units(10);
 
 	String message = mass_data.toString(cbuf);
     mass_monitor.log(message);
@@ -141,6 +140,7 @@ void HX711Thread::loop()
 
 
 void HX711Thread::send_calib_offset() {
+	mass_monitor.log("TEST1 FAILED");
 	// Compute average value
 	mass_avg_offset = mass_sum_offset/cnt_mass_offset;
 
@@ -163,9 +163,10 @@ void HX711Thread::send_calib_offset() {
 }
 
 void HX711Thread::send_calib_scale() {
+	mass_monitor.log("TEST1 FAILED");
+
 	// Compute average value
 
-	
 	if ((cnt_mass_scale != 0) && (calib_weight != 0)) {
 		mass_avg_scale = mass_sum_scale/(cnt_mass_scale*calib_weight);
 	}
