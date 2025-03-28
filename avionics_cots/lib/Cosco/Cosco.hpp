@@ -57,14 +57,40 @@ public:
      */
     void sendMassDataPacket(MassData *responsePacket);
 
+
+    /**
+     * @brief Send mass configuration packet
+     * 
+     * @param requestPacket: pointer to packet to be sent. Defined in Packets->->packet_definition.hpp
+     * @return null 
+     */
+    void sendServoRequestPacket(ServoRequest* requestPacket);
+
+    /**
+     * @brief Send mass configuration response packet
+     * 
+     * @param responsePacket: pointer to packet to be sent. Defined in Packets->->packet_definition.hpp
+     * @return null 
+     */
+    void sendServoResponsePacket(ServoResponse* responsePacket);
+
+    /**
+     * @brief Send sensor data packet
+     * 
+     * @param dataPacket: pointer to packet to be sent. Defined in Packets->->packet_definition.hpp
+     * @return null 
+     */
+    void sendDustDataPacket(DustData *dataPacket);
+
+
     /**
      * @brief functions that receive commands  
      * 
      * @param configPacket 
      * @param requestPacket 
      * @param responsePacket 
+     * @retun uint8_t: packet received
      */    
-    
     uint8_t receive(void* packet);
 };
 
