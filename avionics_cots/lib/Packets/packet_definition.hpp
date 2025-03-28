@@ -9,12 +9,12 @@
 #include <iostream>
 #include <packet_id.hpp>
 
-struct __packed AngleArray {
+struct AngleArray {
     uint16_t id;
     float angles[4];
 };
 
-struct __packed FourInOne {
+struct FourInOne {
     uint16_t id;
     float temperature;
     float moisture;
@@ -22,59 +22,60 @@ struct __packed FourInOne {
     float ph;
 };
 
-struct __packed LEDMessage {
+struct LEDMessage {
     uint8_t low;
     uint8_t high;
     uint8_t system;
     uint8_t mode;
 };
 
-struct __packedLEDResponse {
+struct LEDResponse {
     bool success;
 };
 
-struct __packed MassPacket {
-    uint16_t id;
+
+struct MassPacket {
+    uint8_t id;
     float mass;
 };
 
-struct __packed MassCalibPacket{
-    uint16_t id;
+struct  MassCalibPacket{
+    uint8_t id;
     float expected_weight; //known weight to use for calibration
     uint32_t num_samples; //number of samples we are going to average to take for calibration
     bool calibrate_offset; //true if we are calibrating offset
     bool calibrate_scale; //true if we are calibrating scale
 };
 
-struct __packed MassConfigPacket {
-    uint16_t id; 
+struct MassConfigPacket {
+    uint8_t id; 
     float offset; //actual offset value
     float scale; //actual scale value
     bool set_offset; //true if we are setting the offset
     bool set_scale; //true if we are setting the scale
 };
 
-struct __packed MassConfigRequestPacket {
-    uint16_t id;
+struct MassConfigRequestPacket {
+    uint8_t id;
     bool req_config; // true if we are requesting configuration
 };
 
-struct __packed MassConfigResponsePacket {
-    uint16_t id;
+struct MassConfigResponsePacket {
+    uint8_t id;
     float offset; //current offset value
     float scale; //current scale value
     bool offset_set; // true if we set the offset
     bool scale_set; // true if we set the scale
 };
 
-struct __packed NPK {
+struct NPK {
     uint16_t id;
     uint16_t nitrogen;
     uint16_t phosphorus;
     uint16_t potassium;
 };
 
-struct __packed ServoConfigRequestJetson {
+struct ServoConfigRequestJetson {
     uint16_t destination_id;
     float min_duty[4];
     float max_duty[4];
@@ -87,7 +88,7 @@ struct __packed ServoConfigRequestJetson {
     bool set_max_angles;
 };
 
-struct __packed ServoConfigRequestMCU {
+struct ServoConfigRequestMCU {
     uint16_t id;
     bool req_min_duty;
     bool req_max_duty;
@@ -95,7 +96,7 @@ struct __packed ServoConfigRequestMCU {
     bool req_max_angles;
 };
 
-struct __packed ServoConfigResponse {
+struct ServoConfigResponse {
     uint16_t id;
     float min_duty[4];
     float max_duty[4];
@@ -109,11 +110,11 @@ struct __packed ServoConfigResponse {
     bool success;
 };
 
-struct __packed ServoRequest {
+struct ServoRequest {
     float angle;
 };
 
-struct __packed ServoResponse {
+struct ServoResponse {
     uint16_t id;
     uint8_t channel;
     float angle;

@@ -11,7 +11,7 @@
 // Macro de Ilyas
 #define HANDLE_PACKET(packet_type) do {                                         \
     if (len == sizeof(packet_type)) {                                           \
-        memcpy(packet, buffer + 1, sizeof(packet_type));                        \
+        memcpy(packet, buffer, sizeof(packet_type));                        \
         Serial.println(String(#packet_type) + " packet copied successfully");   \
     } else {                                                                    \
         Serial.println("Received data too "                                     \
