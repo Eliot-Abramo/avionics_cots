@@ -6,7 +6,8 @@
 #define COSCO_HPP
 
 #include "packet_definition.hpp"
-#include "ADS1234.hpp"
+#include "packet_id.hpp"
+#include "HX711.h"
 
 class Cosco {
 public:
@@ -85,7 +86,7 @@ public:
      * @param requestPacket 
      * @param responsePacket 
      */    
-    void receive(void* packet);
+    uint8_t receive(void* packet);
 };
 
 #endif /* COSCO_HPP */
