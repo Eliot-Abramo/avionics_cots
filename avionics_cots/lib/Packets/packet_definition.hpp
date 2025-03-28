@@ -9,29 +9,12 @@
 #include <iostream>
 #include <packet_id.hpp>
 
-struct LEDMessage {
-    uint8_t low;
-    uint8_t high;
-    uint8_t system;
-    uint8_t mode;
+struct __packed AngleArray {
+    uint16_t id;
+    float angles[4];
 };
 
-struct DustData {
-    uint16_t pm1_0_std;;
-    uint16_t pm2_5_std;;
-    uint16_t pm10__std;;
-    uint16_t pm1_0_atm;;
-    uint16_t pm2_5_atm;;
-    uint16_t pm10__atm;;
-    uint16_t num_particles_0_3;;
-    uint16_t num_particles_0_5;;
-    uint16_t num_particles_1_0;;
-    uint16_t num_particles_2_5;;
-    uint16_t num_particles_5_0;;
-    uint16_t num_particles_10_;;
-};
-
-struct FourInOne {
+struct __packed FourInOne {
     uint16_t id;
     float temperature;
     float moisture;
@@ -39,85 +22,102 @@ struct FourInOne {
     float ph;
 };
 
-struct ServoResponse {
-    uint16_t id;
-    float angle;
+struct __packed LEDMessage {
+    uint8_t low;
+    uint8_t high;
+    uint8_t system;
+    uint8_t mode;
+};
+
+struct __packedLEDResponse {
     bool success;
 };
 
-struct MassConfigPacket {
-    uint16_t destination_id;
-    float offset[4];
-    float scale[4];
-    float alpha;
-    bool enabled_channels[4];
-    bool remote_command;
-    bool set_offset;
-    bool set_scale;
-    bool set_alpha;
-    bool set_channels_status;
-};
-
-struct MassConfigResponsePacket {
+struct __packed MassPacket {
     uint16_t id;
-    float offset[4];
-    float scale[4];
-    float alpha;
-    bool enabled_channels[4];
-    bool remote_command;
-    bool set_offset;
-    bool set_scale;
-    bool set_alpha;
-    bool set_channels_status;
-    bool success;
+    float mass;
 };
 
-struct MassArray {
+struct __packed MassCalibPacket{
     uint16_t id;
-    float mass[4];
+    float expected_weight; //known weight to use for calibration
+    uint32_t num_samples; //number of samples we are going to average to take for calibration
+    bool calibrate_offset; //true if we are calibrating offset
+    bool calibrate_scale; //true if we are calibrating scale
 };
 
-struct NPK {
+struct __packed MassConfigPacket {
+    uint16_t id; 
+    float offset; //actual offset value
+    float scale; //actual scale value
+    bool set_offset; //true if we are setting the offset
+    bool set_scale; //true if we are setting the scale
+};
+
+struct __packed MassConfigRequestPacket {
+    uint16_t id;
+    bool req_config; // true if we are requesting configuration
+};
+
+struct __packed MassConfigResponsePacket {
+    uint16_t id;
+    float offset; //current offset value
+    float scale; //current scale value
+    bool offset_set; // true if we set the offset
+    bool scale_set; // true if we set the scale
+};
+
+struct __packed NPK {
     uint16_t id;
     uint16_t nitrogen;
     uint16_t phosphorus;
     uint16_t potassium;
 };
 
-struct BMS {
-    std::string status;
-    float v_bat;
-    float current;
-    uint32_t voltages[4];
-};
-
-struct MassCalibScale {
+struct __packed ServoConfigRequestJetson {
     uint16_t destination_id;
-    uint8_t channel;
-    float expected_weight;
+    float min_duty[4];
+    float max_duty[4];
+    float min_angles[4];
+    float max_angles[4];
+    bool remote_command;
+    bool set_min_duty;
+    bool set_max_duty;
+    bool set_min_angles;
+    bool set_max_angles;
 };
 
-struct ServoRequest {
+struct __packed ServoConfigRequestMCU {
     uint16_t id;
-    uint8_t increment;
-    bool zero_in;
+    bool req_min_duty;
+    bool req_max_duty;
+    bool req_min_angles;
+    bool req_max_angles;
 };
 
-struct LEDResponse {
+struct __packed ServoConfigResponse {
+    uint16_t id;
+    float min_duty[4];
+    float max_duty[4];
+    float min_angles[4];
+    float max_angles[4];
+    bool remote_command;
+    bool set_min_duty;
+    bool set_max_duty;
+    bool set_min_angles;
+    bool set_max_angles;
     bool success;
 };
 
-struct MassConfigRequestPacket {
-    uint16_t id;
-    bool req_offset;
-    bool req_scale;
-    bool req_alpha;
-    bool req_channels_status;
+struct __packed ServoRequest {
+    float angle;
 };
 
-struct MassCalibOffset {
-    uint16_t destination_id;
+struct __packed ServoResponse {
+    uint16_t id;
     uint8_t channel;
+    float angle;
+    bool success;
 };
 
 #endif /* PACKET_DEFINITION_H */
