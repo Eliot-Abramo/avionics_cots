@@ -5,21 +5,10 @@
 #include "Cosco.hpp"
 #include <Wire.h>
 #include <Arduino.h>
-#include <packet_id.hpp>
-#include <packet_definition.hpp>
 
-// Macro de Ilyas
-#define HANDLE_PACKET(packet_type) do {                                         \
-    if (len == sizeof(packet_type)) {                                           \
-        memcpy(packet, buffer, sizeof(packet_type));                        \
-        Serial.println(String(#packet_type) + " packet copied successfully");   \
-    } else {                                                                    \
-        Serial.println("Received data too "                                     \
-                        + String(len > sizeof(packet_type) ? "long" : "short")  \
-                        + " for " + String(#packet_type));                      \
-    }                                                                           \
-    break;                                                                      \
-} while (0)
+#include "ADS1234.hpp"
+#include "packet_definition.hpp"
+#include "packet_id.hpp"
 
 Cosco::Cosco()
 {
@@ -65,9 +54,47 @@ void Cosco::sendMassDataPacket(MassData *responsePacket)
     Serial.write(packetBuffer, sizeof(MassData));
 }
 
+void Cosco::sendDustDataPacket(DustData *dataPacket)
+{
+    // Serialize and send sendDustDataPacket
+    uint8_t packetBuffer[sizeof(DustData) + 1];
+    packetBuffer[0] = DustData_ID;
+    memcpy(packetBuffer + 1, dataPacket, sizeof(DustData));
+    Serial.write(packetBuffer, sizeof(DustData));
+}
+
+#define HANDLE_PACKET(packet_type) do {                                         \
+    if (len == sizeof(packet_type)) {                                           \
+        memcpy(packet, buffer + 1, sizeof(packet_type));                        \
+        Serial.println(String(#packet_type) + " packet copied successfully");   \
+    } else {                                                                    \
+        Serial.println("Received data too "                                     \
+                        + String(len > sizeof(packet_type) ? "long" : "short")  \
+                        + " for " + String(#packet_type));                      \
+    }                                                                           \
+    break;                                                                      \
+} while (0)
+
+void sendServoRequestPacket(ServoRequest* requestPacket)
+{
+    // Serialize and send sendServoRequestPacket
+    uint8_t packetBuffer[sizeof(ServoRequest) + 1];
+    packetBuffer[0] = ServoConfigRequest_ID;
+    memcpy(packetBuffer + 1, requestPacket, sizeof(ServoRequest));
+    Serial.write(packetBuffer, sizeof(ServoRequest));
+}
+
+void sendServoResponsePacket(ServoResponse* responsePacket)
+{
+    // Serialize and send sendServoResponsePacket
+    uint8_t packetBuffer[sizeof(ServoResponse) + 1];
+    packetBuffer[0] = ServoResponse_ID;
+    memcpy(packetBuffer + 1, responsePacket, sizeof(ServoResponse));
+    Serial.write(packetBuffer, sizeof(ServoResponse));
+}
+
 void Cosco::receive(void* packet)
 {
-    uint8_t packet_id = 0; // Variable to hold the packet ID
     // Check if data is available
     if (Serial.available() > 0) {
         // Read the incoming data into a buffer
@@ -99,14 +126,12 @@ void Cosco::receive(void* packet)
             case FourInOne_ID: HANDLE_PACKET(FourInOne);
             case NPK_ID: HANDLE_PACKET(NPK);
             case DustData_ID: HANDLE_PACKET(DustData);
-
             default: {
                 Serial.println("Unknown packet ID");
                 break;
             }
         }
-        return packet_id;
-        // For the mass only the config from the CS is needed so only need to receive MassConfigPackets 
+    }
 }
 
 #undef HANDLE_PACKET

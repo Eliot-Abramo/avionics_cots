@@ -6,12 +6,7 @@
 #define COSCO_HPP
 
 #include "packet_definition.hpp"
-#include "packet_id.hpp"
-#include "HX711.h"
-#include <functional>    // For std::function
-#include <unordered_map> // For std::unordered_map
-
-
+#include "ADS1234.hpp"
 
 class Cosco {
 public:
@@ -24,7 +19,7 @@ public:
      * @brief Destroys a Cosco Object. Should unalocate any pointers and memory used up in class
      */    
     ~Cosco();
-    
+
     /**
      * @brief Send mass configuration packet
      * 
@@ -89,9 +84,8 @@ public:
      * @param configPacket 
      * @param requestPacket 
      * @param responsePacket 
-     * @retun uint8_t: packet received
      */    
-    uint8_t receive(void* packet);
+    void receive(void* packet);
 };
 
 #endif /* COSCO_HPP */
