@@ -106,6 +106,8 @@ void generate_message_file(std::string folderPath, std::string outputFilename){
                 } else if (type == "uint32[7]") {
                     type = "uint32_t";
                     name = name + "[4]";
+                } else if (type == "string" || type == "String"){
+                    type = "std::string";
                 }
                 
                 fields.push_back({type, name});

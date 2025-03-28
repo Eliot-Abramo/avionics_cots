@@ -93,7 +93,7 @@ void sendServoResponsePacket(ServoResponse* responsePacket)
     Serial.write(packetBuffer, sizeof(ServoResponse));
 }
 
-void Cosco::receive(MassConfigPacket *configPacket, MassConfigRequestPacket *requestPacket, MassConfigResponsePacket *responsePacket)
+void Cosco::receive(void* packet)
 {
     // Check if data is available
     if (Serial.available() > 0) {

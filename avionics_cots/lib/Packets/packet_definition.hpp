@@ -45,22 +45,6 @@ struct ServoResponse {
     bool success;
 };
 
-struct MassArray {
-    uint16_t id;
-    float mass[4];
-};
-
-struct MassCalibOffset {
-    uint16_t destination_id;
-    uint8_t channel;
-};
-
-struct MassCalibScale {
-    uint16_t destination_id;
-    uint8_t channel;
-    float expected_weight;
-};
-
 struct MassConfigPacket {
     uint16_t destination_id;
     float offset[4];
@@ -72,14 +56,6 @@ struct MassConfigPacket {
     bool set_scale;
     bool set_alpha;
     bool set_channels_status;
-};
-
-struct MassConfigRequestPacket {
-    uint16_t id;
-    bool req_offset;
-    bool req_scale;
-    bool req_alpha;
-    bool req_channels_status;
 };
 
 struct MassConfigResponsePacket {
@@ -96,6 +72,11 @@ struct MassConfigResponsePacket {
     bool success;
 };
 
+struct MassArray {
+    uint16_t id;
+    float mass[4];
+};
+
 struct NPK {
     uint16_t id;
     uint16_t nitrogen;
@@ -104,7 +85,7 @@ struct NPK {
 };
 
 struct BMS {
-    String status;
+    std::string status;
     float v_bat;
     float current;
     uint32_t voltages[4];
@@ -122,10 +103,21 @@ struct ServoRequest {
     bool zero_in;
 };
 
-struct ServoResponse {
-    uint16_t id;
-    float angle;
+struct LEDResponse {
     bool success;
+};
+
+struct MassConfigRequestPacket {
+    uint16_t id;
+    bool req_offset;
+    bool req_scale;
+    bool req_alpha;
+    bool req_channels_status;
+};
+
+struct MassCalibOffset {
+    uint16_t destination_id;
+    uint8_t channel;
 };
 
 #endif /* PACKET_DEFINITION_H */
