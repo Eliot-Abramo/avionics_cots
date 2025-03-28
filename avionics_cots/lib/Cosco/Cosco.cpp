@@ -5,7 +5,21 @@
 #include "Cosco.hpp"
 #include <Wire.h>
 #include <Arduino.h>
+#include <packet_id.hpp>
+#include <packet_definition.hpp>
 
+// Macro de Ilyas
+#define HANDLE_PACKET(packet_type) do {                                         \
+    if (len == sizeof(packet_type)) {                                           \
+        memcpy(packet, buffer + 1, sizeof(packet_type));                        \
+        Serial.println(String(#packet_type) + " packet copied successfully");   \
+    } else {                                                                    \
+        Serial.println("Received data too "                                     \
+                        + String(len > sizeof(packet_type) ? "long" : "short")  \
+                        + " for " + String(#packet_type));                      \
+    }                                                                           \
+    break;                                                                      \
+} while (0)
 
 Cosco::Cosco()
 {
@@ -51,21 +65,34 @@ void Cosco::sendMassDataPacket(MassData *responsePacket)
     Serial.write(packetBuffer, sizeof(MassData));
 }
 
-void Cosco::receive(MassConfigPacket *configPacket, MassConfigRequestPacket *requestPacket, MassConfigResponsePacket *responsePacket)
+uint8_t Cosco::receive(void* packet)
 {
+    uint8_t packet_id = 0; // Variable to hold the packet ID
     // Check if data is available
     if (Serial.available() > 0) {
         // Read the incoming data into a buffer
-        char buffer[64];
+        char buffer[128] = {0}; // Buffer to hold incoming data
         int len = Serial.readBytesUntil('\n', buffer, sizeof(buffer) - 1);
         buffer[len] = '\0'; // Null-terminate the string
 
         // Read and store the first byte (the "first bit")
-        uint8_t firstByte = static_cast<uint8_t>(buffer[0]);
-        // Do something with the stored value, e.g., print it
-        Serial.print("First byte received: 0x");
-        Serial.println(firstByte, HEX);
+        packet_id = static_cast<uint8_t>(buffer[0]);
+        
+        switch (packet_id) {
+            case MassData_ID: HANDLE_PACKET(MassPacket);
+            case MassConfigRequest_ID: HANDLE_PACKET(MassConfigRequestPacket);
+            // case MassCalib_ID: HANDLE_PACKET();
+            // case MassConfig_ID: HANDLE_PACKET();
+            case MassConfigResponse_ID: HANDLE_PACKET(MassConfigResponsePacket);
 
+            default: {
+                Serial.println("Unknown packet ID");
+                break;
+            }
+        }
+        return packet_id;
+        // For the mass only the config from the CS is needed so only need to receive MassConfigPackets 
     }
+    return 0;
 }
 

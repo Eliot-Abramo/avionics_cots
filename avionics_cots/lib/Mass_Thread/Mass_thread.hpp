@@ -36,6 +36,14 @@
 		mass_monitor.log(message);
     }
 */
+
+#define NUM_PACKETS 5
+
+enum calibration_state {
+    NEEDS_CALIBRATION = 0,
+    CALIBRATING,
+    CALIBRATED
+};
  
 class HX711Thread {
 public:
@@ -61,12 +69,15 @@ public:
      * @return null
      */
     void start_calib_scale(uint32_t num_samples, float calib_weight);
+    bool configured = false; //True if the sensor is configured
 
-    bool configured = false;
 
 private:
 
     HX711* mass_sensor;
+
+    void* packet = nullptr; // Pointer to the packet to receive
+    uint8_t packet_id = 0; // ID of the packet received
 
 
     //Time variables for requesting configuration to CS
@@ -88,7 +99,7 @@ private:
     
     //Offset parameters
 
-    bool calibrating_offset = false; //Bool controlling offset calibration
+    calibration_state offset_state = NEEDS_CALIBRATION; //State of the offset calibration
 
     uint32_t cnt_mass_offset = 0; // Counter for number of samples taken
 
@@ -100,7 +111,7 @@ private:
 
     //Scale parameters
 
-    bool calibrating_scale = false; //Bool controlling scale calibration
+    calibration_state scale_state = NEEDS_CALIBRATION; //State of the scale calibration
 
     uint32_t cnt_mass_scale = 0; // Counter for number of samples taken
 
@@ -110,7 +121,6 @@ private:
  
     double mass_sum_scale; //Double to accumulate samples for scale calibration
     float mass_avg_scale; //Float to store the average of the summed samples for scale calibration
-
 
     /**
      * @brief Called some time after start_calib_offset(). This is the functuon actually computing the division of the average (sum/number of samples)
@@ -126,6 +136,23 @@ private:
      * @return null
      */
     void send_calib_scale();
+
+    /**
+     * @brief Handle the mass calibration packet. This is called when a packet is received from CS with the ID of the mass sensor.
+     * It will initialise the sequence of calibration to set the offset and scale of the sensor.
+     * @param packet Pointer to the packet received
+     * @return null
+     */
+    void handleMassCalibPacket(void* packet);
+
+
+    /**
+     * @brief Handle the mass configuration packet. This is called when a packet is received from CS with the ID of the mass sensor.
+     * It will set the offset and scale of the sensor to the values received in the packet. 
+     * @param packet Pointer to the packet received
+     * @return null
+     */
+    void handleMassConfigPacket(void* packet);
 
     SerialMonitor mass_monitor;
     Cosco mass_handler;

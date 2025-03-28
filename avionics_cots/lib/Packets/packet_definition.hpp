@@ -9,12 +9,12 @@
 #include <iostream>
 #include <packet_id.hpp>
 
-struct AngleArray {
+struct __packed AngleArray {
     uint16_t id;
     float angles[4];
 };
 
-struct FourInOne {
+struct __packed FourInOne {
     uint16_t id;
     float temperature;
     float moisture;
@@ -22,70 +22,59 @@ struct FourInOne {
     float ph;
 };
 
-struct LEDMessage {
+struct __packed LEDMessage {
     uint8_t low;
     uint8_t high;
     uint8_t system;
     uint8_t mode;
 };
 
-struct LEDResponse {
+struct __packedLEDResponse {
     bool success;
 };
 
-struct MassArray {
+struct __packed MassPacket {
     uint16_t id;
     float mass;
 };
 
-struct MassCalibOffset {
-    uint16_t destination_id;
-    uint8_t channel;
-};
-
-struct MassCalibScale {
-    uint16_t destination_id;
-    uint8_t channel;
-    float expected_weight;
-};
-
-struct MassConfigPacket {
-    uint16_t destination_id;
-    float offset[4];
-    float scale[4];
-    float alpha;
-    bool enabled_channels[4];
-    bool remote_command;
-    bool set_offset;
-    bool set_scale;
-    bool set_alpha;
-    bool set_channels_status;
-};
-
-struct MassConfigRequestPacket {
+struct __packed MassCalibPacket{
     uint16_t id;
-    bool req_offset;
-    bool req_scale;
-    bool req_status;
+    float expected_weight; //known weight to use for calibration
+    uint32_t num_samples; //number of samples we are going to average to take for calibration
+    bool calibrate_offset; //true if we are calibrating offset
+    bool calibrate_scale; //true if we are calibrating scale
 };
 
-struct MassConfigResponsePacket {
+struct __packed MassConfigPacket {
+    uint16_t id; 
+    float offset; //actual offset value
+    float scale; //actual scale value
+    bool set_offset; //true if we are setting the offset
+    bool set_scale; //true if we are setting the scale
+};
+
+struct __packed MassConfigRequestPacket {
     uint16_t id;
-    float offset;
-    float scale;
-    bool set_offset;
-    bool set_scale;
-    bool success;
+    bool req_config; // true if we are requesting configuration
 };
 
-struct NPK {
+struct __packed MassConfigResponsePacket {
+    uint16_t id;
+    float offset; //current offset value
+    float scale; //current scale value
+    bool offset_set; // true if we set the offset
+    bool scale_set; // true if we set the scale
+};
+
+struct __packed NPK {
     uint16_t id;
     uint16_t nitrogen;
     uint16_t phosphorus;
     uint16_t potassium;
 };
 
-struct ServoConfigRequestJetson {
+struct __packed ServoConfigRequestJetson {
     uint16_t destination_id;
     float min_duty[4];
     float max_duty[4];
@@ -98,7 +87,7 @@ struct ServoConfigRequestJetson {
     bool set_max_angles;
 };
 
-struct ServoConfigRequestMCU {
+struct __packed ServoConfigRequestMCU {
     uint16_t id;
     bool req_min_duty;
     bool req_max_duty;
@@ -106,7 +95,7 @@ struct ServoConfigRequestMCU {
     bool req_max_angles;
 };
 
-struct ServoConfigResponse {
+struct __packed ServoConfigResponse {
     uint16_t id;
     float min_duty[4];
     float max_duty[4];
@@ -120,11 +109,11 @@ struct ServoConfigResponse {
     bool success;
 };
 
-struct ServoRequest {
+struct __packed ServoRequest {
     float angle;
 };
 
-struct ServoResponse {
+struct __packed ServoResponse {
     uint16_t id;
     uint8_t channel;
     float angle;

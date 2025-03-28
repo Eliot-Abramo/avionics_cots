@@ -23,9 +23,13 @@ static char cbuf[256];
 #define PIN_DOUT 16
 
 static MassData mass_data;
-static MassConfigRequestPacket mass_config_packet;
-static MassConfigResponsePacket mass_calib_offset_response_packet = {};
-static MassConfigResponsePacket mass_calib_scale_response_packet = {};
+static MassPacket mass_packet = {MassData_ID, 0};
+static MassConfigPacket mass_config_packet = {MassConfig_ID, 0, 0, false, false};
+static MassCalibPacket mass_calib_packet = {MassCalib_ID, 0, 0, false, false};
+static MassConfigRequestPacket mass_config_req_packet = {MassConfigRequest_ID, false};
+static MassConfigResponsePacket mass_config_response_packet = {};
+
+
 
 HX711Thread::HX711Thread() : mass_sensor(nullptr)
 {
@@ -54,17 +58,16 @@ void HX711Thread::request_config()
 {
   	mass_monitor.log("Requesting configuration...");
     config_time = esp_timer_get_time();
-	mass_config_packet.req_offset = true;
-	mass_config_packet.req_scale = true;
+	mass_config_req_packet.req_config= true;
 
-	mass_handler.sendMassConfigRequestPacket(&mass_config_packet);	
+	mass_handler.sendMassConfigRequestPacket(&mass_config_req_packet);	
 }
 
 void HX711Thread::start_calib_offset(uint32_t num_samples)
 {
 
-	if (!calibrating_offset) {
-		if (!calibrating_scale) {
+	if (offset_state != CALIBRATING) {
+		if (scale_state != CALIBRATING) {
 
 			//Reset values
 			cnt_mass_offset = 0;
@@ -74,7 +77,7 @@ void HX711Thread::start_calib_offset(uint32_t num_samples)
       		calib_samples_offset = num_samples;
 
 			//Enable offset calibration
-			calibrating_offset = true;
+			offset_state = CALIBRATING;
 
 			//Reset the current offset
 			mass_sensor->set_offset(0);
@@ -91,8 +94,8 @@ void HX711Thread::start_calib_offset(uint32_t num_samples)
 void HX711Thread::start_calib_scale(uint32_t num_samples, float calib_weight) 
 {
 
-	if (!calibrating_scale) {
-		if (!calibrating_offset) {
+	if (scale_state != CALIBRATING) {
+		if (offset_state != CALIBRATING) {
 
 			//Reset values
 			cnt_mass_scale = 0;
@@ -105,7 +108,7 @@ void HX711Thread::start_calib_scale(uint32_t num_samples, float calib_weight)
       		calib_samples_scale = num_samples;
 
 			//Enable scale calibration
-			calibrating_scale = true;
+			scale_state = CALIBRATING;
 
 			//Reset the current scale
 			mass_sensor->set_scale(1.0);
@@ -120,12 +123,30 @@ void HX711Thread::start_calib_scale(uint32_t num_samples, float calib_weight)
 }
 
 void HX711Thread::loop()
-{	/*
+{	
+	packet_id = mass_handler.receive(packet);
+
+	for (uint8_t i = 0; i < NUM_PACKETS; i++){
+		switch (packet_id) {
+			case MassConfig_ID:
+				this->handleMassConfigPacket(packet);
+				break;
+			case MassCalib_ID:
+				this->handleMassCalibPacket(packet);
+				break;
+			default:
+				break;
+		}
+	}
+	if((offset_state == CALIBRATED) && (scale_state == CALIBRATED)){
+		configured = true;
+	} 
+	
     // Request configuration
   	if((esp_timer_get_time() - config_time > config_req_interval) && !configured) {
-		//request_config();
+		request_config();
 	}
-	*/
+	
 
 	// Get mass data
 	mass_data.mass = mass_sensor->get_units(10);
@@ -136,29 +157,29 @@ void HX711Thread::loop()
 
 	// Calibration$
 	// Accumulate values for offset and scale calibration
-	if(calibrating_offset) {
+	if(offset_state == CALIBRATING) {
 		cnt_mass_offset += 1;
 		mass_sum_offset += mass_sensor->get_units(10);
 	}
 
-	if(calibrating_scale) {
+	if(scale_state == CALIBRATING) {
 		cnt_mass_scale += 1;
 		mass_sum_scale += mass_sensor->get_units(10);
 	}
 
 	//Sending cummulative values
-	if(calibrating_offset && (cnt_mass_offset > calib_samples_offset)) {
+	if(offset_state == CALIBRATING && (cnt_mass_offset > calib_samples_offset)) {
 		send_calib_offset();
 	}
 
-	if(calibrating_scale && (cnt_mass_scale > calib_samples_scale)) {
+	if(scale_state == CALIBRATING && (cnt_mass_scale > calib_samples_scale)) {
 		send_calib_scale();
 	}
 
 	
 	mass_monitor.log(message);
-	//mass_handler.sendMassDataPacket(&mass_data);
 
+	mass_handler.sendMassDataPacket(&mass_data);
 }
 
 
@@ -169,7 +190,7 @@ void HX711Thread::send_calib_offset() {
 	}
 
 	//Deactivate offset calibration
-	calibrating_offset = false;
+	offset_state == CALIBRATED;
 
 	//Reset values to begin a new offset averaging calculation when needed
 	cnt_mass_offset = 0;
@@ -178,11 +199,14 @@ void HX711Thread::send_calib_offset() {
 	//Set the value we computed
 	mass_sensor->set_offset(static_cast<long>(mass_avg_offset));
 
+	//Reset the response packet
+	mass_config_response_packet = {MassConfigResponse_ID, 0, 0, false, false};
+
 	//Put on a packet to notify CS that we set the offset
-	mass_calib_offset_response_packet.set_offset = true;
+	mass_config_response_packet.offset_set = true;
 
 	//Actually put the offset in the packet
-	mass_calib_offset_response_packet.offset = mass_sensor->get_offset();
+	mass_config_response_packet.offset = mass_sensor->get_offset();
 
 	//Print the offset value
 	snprintf(cbuf, sizeof(cbuf), "Computed mass sensor offset: [%ld]", mass_sensor->get_offset());
@@ -190,7 +214,7 @@ void HX711Thread::send_calib_offset() {
 	mass_monitor.log(message);
 
 	//Send the packet to CS
-  	//mass_handler.sendMassConfigResponsePacket(&mass_calib_offset_response_packet);
+  	mass_handler.sendMassConfigResponsePacket(&mass_config_response_packet);
 }
 
 void HX711Thread::send_calib_scale() {
@@ -202,7 +226,7 @@ void HX711Thread::send_calib_scale() {
 	}
 
 	//Deactivate scale calibration
-	calibrating_scale = false;
+	scale_state = CALIBRATED;
 
 	//Reset values to begin a new scale averaging calculation when needed
 	cnt_mass_scale = 0;
@@ -211,11 +235,14 @@ void HX711Thread::send_calib_scale() {
 	//Set the value we computed
 	mass_sensor->set_scale(mass_avg_scale);
 
+	//Reset the response packet
+	mass_config_response_packet = {MassConfigResponse_ID, 0, 0, false, false};
+
 	//Put on a packet to notify CS that we set the scale
-	mass_calib_scale_response_packet.set_scale = true;
+	mass_config_response_packet.scale_set = true;
 
 	//Actually put the scale in the packet
-	mass_calib_scale_response_packet.scale = mass_sensor->get_scale();
+	mass_config_response_packet.scale = mass_sensor->get_scale();
 
 	//Print the scale value
 	snprintf(cbuf, sizeof(cbuf), "Computed mass sensor scale: [%.3f]", mass_sensor->get_scale());
@@ -224,5 +251,57 @@ void HX711Thread::send_calib_scale() {
 	mass_monitor.log(message);
 
 	//Send the packet to CS
-	//mass_handler.sendMassConfigResponsePacket(&mass_calib_scale_response_packet);
+	mass_handler.sendMassConfigResponsePacket(&mass_config_response_packet);
+}
+
+void HX711Thread::handleMassCalibPacket(void* packet)
+{
+	// Handle the mass configuration packet
+	MassCalibPacket* calibPacket = static_cast<MassCalibPacket*>(packet);
+
+	// Process the configuration packet as needed
+	if (calibPacket->id != MassCalib_ID) {
+		mass_monitor.log("Invalid packet ID");
+		return;
+	}
+
+	if (calibPacket->calibrate_offset || calibPacket->calibrate_scale){
+		if (calibPacket->calibrate_offset) {
+			start_calib_offset(calibPacket->num_samples);
+		} 
+		if (calibPacket->calibrate_scale && offset_state == CALIBRATED) {
+			start_calib_scale(calibPacket->num_samples, calibPacket->expected_weight);
+		} else {
+			mass_monitor.log("Need to first calibrate the offset before calibrating the scale");
+		}
+	} else {
+		mass_monitor.log("No calibration requested");
+	}
+	
+}
+
+void HX711Thread::handleMassConfigPacket(void* packet)
+{
+	// Handle the mass configuration packet
+	MassConfigPacket* configPacket = static_cast<MassConfigPacket*>(packet);
+
+	// Process the configuration packet as needed
+	if (configPacket->id != MassConfig_ID) {
+		mass_monitor.log("Invalid packet ID");
+		return;
+	}
+
+	//Reset the response packet
+	mass_config_response_packet = {MassConfigResponse_ID, 0, 0, false, false};
+
+	if (configPacket->set_offset) {
+		mass_sensor->set_offset(static_cast<long>(configPacket->offset));
+		mass_config_response_packet.offset_set = true;
+		mass_config_response_packet.offset = mass_sensor->get_offset();
+	}
+	if (configPacket->set_scale) {
+		mass_sensor->set_scale(configPacket->scale);
+		mass_config_response_packet.scale_set = true;
+		mass_config_response_packet.scale = mass_sensor->get_scale();
+	}
 }
