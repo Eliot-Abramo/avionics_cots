@@ -52,6 +52,7 @@ public:
      */
     void sendMassDataPacket(MassData *responsePacket);
 
+
     /**
      * @brief Send mass configuration packet
      * 
@@ -68,7 +69,13 @@ public:
      */
     void sendServoResponsePacket(ServoResponse* responsePacket);
 
-
+    /**
+     * @brief Send sensor data packet
+     * 
+     * @param dataPacket: pointer to packet to be sent. Defined in Packets->->packet_definition.hpp
+     * @return null 
+     */
+    void sendDustDataPacket(DustData *dataPacket);
 
 
     /**
@@ -78,7 +85,7 @@ public:
      * @param requestPacket 
      * @param responsePacket 
      */    
-    void receive(MassConfigPacket* configPacket, MassConfigRequestPacket* requestPacket, MassConfigResponsePacket* responsePacket);
+    void receive(void* packet);
 };
 
 #endif /* COSCO_HPP */

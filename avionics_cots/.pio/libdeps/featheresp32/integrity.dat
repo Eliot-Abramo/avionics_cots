@@ -1,0 +1,4 @@
+SPI
+Wire
+fastled/FastLED@^3.7.3
+adafruit/Adafruit NeoPixel@^1.11.0
