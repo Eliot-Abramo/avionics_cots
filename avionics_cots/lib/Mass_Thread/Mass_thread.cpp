@@ -124,7 +124,7 @@ void HX711Thread::start_calib_scale(uint32_t num_samples, float calib_weight)
 
 void HX711Thread::loop()
 {	
-	mass_handler.receive(packet);
+	// mass_handler.receive(packet);
 
 	for (uint8_t i = 0; i < NUM_PACKETS; i++){
 		switch (packet_id) {

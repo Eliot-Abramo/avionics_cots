@@ -8,23 +8,26 @@
 #include <packet_id.hpp>
 #include <packet_definition.hpp>
 
+extern MassConfigRequestPacket latest_mass_config_request;
+extern MassConfigResponsePacket latest_mass_config_response;
+
 // Macro de Ilyas
-#define HANDLE_PACKET(packet_type) do {                                         \
-    if (len == sizeof(packet_type)) {                                           \
-        memcpy(packet, buffer + 1, sizeof(packet_type));                        \
-        Serial.println(String(#packet_type) + " packet copied successfully");   \
-    } else {                                                                    \
-        Serial.println("Received data too "                                     \
-                        + String(len > sizeof(packet_type) ? "long" : "short")  \
-                        + " for " + String(#packet_type));                      \
-    }                                                                           \
-    break;                                                                      \
-} while (0)
+// #define HANDLE_PACKET(packet_type) do {                                         \
+//     if (len == sizeof(packet_type)) {                                           \
+//         memcpy(packet, buffer + 1, sizeof(packet_type));                        \
+//         Serial.println(String(#packet_type) + " packet copied successfully");   \
+//     } else {                                                                    \
+//         Serial.println("Received data too "                                     \
+//                         + String(len > sizeof(packet_type) ? "long" : "short")  \
+//                         + " for " + String(#packet_type));                      \
+//     }                                                                           \
+//     break;                                                                      \
+// } while (0)
 
 Cosco::Cosco()
 {
     Serial.begin(115200);
-    Serial.println("Serial launched");
+    // Serial.println("Serial launched");
 }
 
 Cosco::~Cosco(){}
@@ -38,22 +41,22 @@ void Cosco::sendMassConfigPacket(MassConfigPacket *configPacket)
     Serial.write(packetBuffer, sizeof(MassConfigPacket));
 }
 
-void Cosco::sendMassConfigRequestPacket(MassConfigRequestPacket *requestPacket)
-{
-    // Serialize and send MassConfigRequestPacket
-    uint8_t packetBuffer[sizeof(MassConfigRequestPacket) + 1];
-    packetBuffer[0] = MassConfigRequest_ID; 
-    memcpy(packetBuffer, requestPacket, sizeof(MassConfigRequestPacket));
-    Serial.write(packetBuffer, sizeof(MassConfigRequestPacket));
+void Cosco::sendMassConfigRequestPacket(MassConfigRequestPacket* pkt) {
+    uint8_t buffer[sizeof(MassConfigRequestPacket) + 1];
+    buffer[0] = MassConfigRequest_ID;
+    memcpy(buffer + 1, pkt, sizeof(MassConfigRequestPacket));
+    Serial.write(buffer, sizeof(buffer));
+    Serial.flush();       // make sure it's all sent
+    delay(5);             // give host time to react
 }
 
-void Cosco::sendMassConfigResponsePacket(MassConfigResponsePacket *responsePacket)
-{
-    // Serialize and send MassConfigResponsePacket
-    uint8_t packetBuffer[sizeof(MassConfigResponsePacket) + 1];
-    packetBuffer[0] = MassConfigResponse_ID;
-    memcpy(packetBuffer, responsePacket, sizeof(MassConfigResponsePacket));
-    Serial.write(packetBuffer, sizeof(MassConfigResponsePacket));
+void Cosco::sendMassConfigResponsePacket(MassConfigResponsePacket* pkt) {
+    uint8_t buffer[sizeof(MassConfigResponsePacket) + 1];
+    buffer[0] = MassConfigResponse_ID;
+    memcpy(buffer + 1, pkt, sizeof(MassConfigResponsePacket));
+    Serial.write(buffer, sizeof(buffer));
+    Serial.flush();       // make sure it's all sent
+    delay(5);             // give host time to react
 }
 
 void Cosco::sendMassDataPacket(MassData *responsePacket)
@@ -65,31 +68,29 @@ void Cosco::sendMassDataPacket(MassData *responsePacket)
     Serial.write(packetBuffer, sizeof(MassData));
 }
 
-void Cosco::receive(void* packet)
-{
-    uint8_t packet_id = 0; // Variable to hold the packet ID
-    // Check if data is available
-    if (Serial.available() > 0) {
-        // Read the incoming data into a buffer
-        char buffer[128] = {0}; // Buffer to hold incoming data
-        int len = Serial.readBytesUntil('\n', buffer, sizeof(buffer) - 1);
-        buffer[len] = '\0'; // Null-terminate the string
+void Cosco::receive() {
+    if (Serial.available() < 1) return;
 
-        // Read and store the first byte (the "first bit")
-        packet_id = static_cast<uint8_t>(buffer[0]);
-        
-        switch (packet_id) {
-            case MassData_ID: HANDLE_PACKET(MassPacket);
-            case MassConfigRequest_ID: HANDLE_PACKET(MassConfigRequestPacket);
-            // case MassCalib_ID: HANDLE_PACKET();
-            // case MassConfig_ID: HANDLE_PACKET();
-            case MassConfigResponse_ID: HANDLE_PACKET(MassConfigResponsePacket);
+    uint8_t packet_id = Serial.read();
 
-            default: {
-                Serial.println("Unknown packet ID");
-                break;
+    switch (packet_id) {
+        case MassConfigRequest_ID:
+            if (Serial.available() >= sizeof(MassConfigRequestPacket)) {
+                Serial.readBytes(reinterpret_cast<char*>(&latest_mass_config_request),
+                                 sizeof(MassConfigRequestPacket));
+                sendMassConfigRequestPacket(&latest_mass_config_request);  // Echo back
             }
-        }
+            break;
+
+        case MassConfigResponse_ID:
+            if (Serial.available() >= sizeof(MassConfigResponsePacket)) {
+                Serial.readBytes(reinterpret_cast<char*>(&latest_mass_config_response),
+                                 sizeof(MassConfigResponsePacket));
+                sendMassConfigResponsePacket(&latest_mass_config_response);  // Echo back
+            }
+            break;
+
+        default:
+            break;
     }
 }
-

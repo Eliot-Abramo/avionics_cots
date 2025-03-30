@@ -91,7 +91,7 @@ public:
      * @param responsePacket 
      * @return null
      */    
-    void receive(void* packet);
+    void receive();
 };
 
 #endif /* COSCO_HPP */
