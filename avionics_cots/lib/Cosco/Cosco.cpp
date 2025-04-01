@@ -43,6 +43,7 @@ void Cosco::sendMassConfigPacket(MassConfigPacket *configPacket)
 
 void Cosco::sendMassConfigRequestPacket(MassConfigRequestPacket* pkt) {
     uint8_t buffer[sizeof(MassConfigRequestPacket) + 1];
+    Serial.println(sizeof(buffer));
     buffer[0] = MassConfigRequest_ID;
     memcpy(buffer + 1, pkt, sizeof(MassConfigRequestPacket));
     Serial.write(buffer, sizeof(buffer));
@@ -52,8 +53,19 @@ void Cosco::sendMassConfigRequestPacket(MassConfigRequestPacket* pkt) {
 
 void Cosco::sendMassConfigResponsePacket(MassConfigResponsePacket* pkt) {
     uint8_t buffer[sizeof(MassConfigResponsePacket) + 1];
+    Serial.println(sizeof(buffer));
     buffer[0] = MassConfigResponse_ID;
     memcpy(buffer + 1, pkt, sizeof(MassConfigResponsePacket));
+    Serial.write(buffer, sizeof(buffer));
+    Serial.flush();       // make sure it's all sent
+    delay(5);             // give host time to react
+}
+
+void Cosco::sendServoRequestPacket(ServoRequest* pkt) {
+    uint8_t buffer[sizeof(ServoRequest) + 1];
+    Serial.println(sizeof(buffer));
+    buffer[0] = ServoConfigRequest_ID;
+    memcpy(buffer + 1, pkt, sizeof(ServoRequest));
     Serial.write(buffer, sizeof(buffer));
     Serial.flush();       // make sure it's all sent
     delay(5);             // give host time to react
@@ -70,6 +82,7 @@ void Cosco::sendMassDataPacket(MassData *responsePacket)
 
 void Cosco::receive() {
     if (Serial.available() < 1) return;
+    Serial.println("Received data");
 
     uint8_t packet_id = Serial.read();
 
@@ -89,6 +102,14 @@ void Cosco::receive() {
                 sendMassConfigResponsePacket(&latest_mass_config_response);  // Echo back
             }
             break;
+
+        case ServoConfigRequest_ID:
+            Serial.println("RECEIVED SERVO");
+            if (Serial.available() >= sizeof(ServoRequest)) {
+                ServoRequest request;
+                Serial.readBytes(reinterpret_cast<char*>(&request), sizeof(ServoRequest));
+                sendServoRequestPacket(&request);
+            }
 
         default:
             break;
