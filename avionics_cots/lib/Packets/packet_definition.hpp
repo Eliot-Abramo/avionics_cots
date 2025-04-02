@@ -51,7 +51,7 @@ struct FourInOne {
 
 struct ServoResponse {
     uint16_t id;
-    float angle;
+    uint8_t angle;
     bool success;
 };
 
