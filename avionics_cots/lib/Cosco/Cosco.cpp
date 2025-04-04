@@ -77,13 +77,14 @@ void Cosco::sendServoResponsePacket(ServoResponse* pkt) {
     delay(5);             // give host time to react
 }
 
-void Cosco::sendDustDataPacket(DustData* dust_packet) {
+void Cosco::sendDustDataPacket(DustData* pkt) {
     uint8_t buffer[sizeof(DustData) + 1];
-    buffer[0] = DustData_ID; // <<< PREPEND THE ID
-    memcpy(buffer + 1, dust_packet, sizeof(DustData));
+    buffer[0] = DustData_ID;
+    memcpy(buffer + 1, pkt, sizeof(DustData));
     Serial.write(buffer, sizeof(buffer));
+    Serial.flush();       // make sure it's all sent
+    delay(5);             // give host time to react
 }
-
 
 void Cosco::sendMassDataPacket(MassData *responsePacket)
 {
