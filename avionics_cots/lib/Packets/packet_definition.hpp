@@ -19,22 +19,22 @@ struct LEDMessage {
 };
 
 struct DustData {
-    uint16_t pm1_0_std;;
-    uint16_t pm2_5_std;;
-    uint16_t pm10__std;;
-    uint16_t pm1_0_atm;;
-    uint16_t pm2_5_atm;;
-    uint16_t pm10__atm;;
-    uint16_t num_particles_0_3;;
-    uint16_t num_particles_0_5;;
-    uint16_t num_particles_1_0;;
-    uint16_t num_particles_2_5;;
-    uint16_t num_particles_5_0;;
-    uint16_t num_particles_10_;;
+    uint16_t pm1_0_std;
+    uint16_t pm2_5_std;
+    uint16_t pm10__std;
+    uint16_t pm1_0_atm;
+    uint16_t pm2_5_atm;
+    uint16_t pm10__atm;
+    uint16_t num_particles_0_3;
+    uint16_t num_particles_0_5;
+    uint16_t num_particles_1_0;
+    uint16_t num_particles_2_5;
+    uint16_t num_particles_5_0;
+    uint16_t num_particles_10_;
 };
 
 struct MassCalibPacket {
-    uint16_t id;;
+    uint16_t id;
     float expected_weight;
     uint32_t num_samples;
     bool calibrate_offset;
@@ -51,7 +51,7 @@ struct FourInOne {
 
 struct ServoResponse {
     uint16_t id;
-    uint8_t angle;
+    int32_t angle;
     bool success;
 };
 
@@ -97,7 +97,7 @@ struct MassPacket {
 
 struct ServoRequest {
     uint16_t id;
-    uint8_t increment;
+    int32_t increment;
     bool zero_in;
 };
 

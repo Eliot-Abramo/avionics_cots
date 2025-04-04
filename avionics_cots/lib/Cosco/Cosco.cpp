@@ -68,6 +68,14 @@ void Cosco::sendServoRequestPacket(ServoRequest* pkt) {
     delay(5);             // give host time to react
 }
 
+void Cosco::sendDustDataPacket(DustData* dust_packet) {
+    uint8_t buffer[sizeof(DustData) + 1];
+    buffer[0] = DustData_ID; // <<< PREPEND THE ID
+    memcpy(buffer + 1, dust_packet, sizeof(DustData));
+    Serial.write(buffer, sizeof(buffer));
+}
+
+
 void Cosco::sendMassDataPacket(MassData *responsePacket)
 {
     // Serialize and send sendMassDataPacket
@@ -77,33 +85,42 @@ void Cosco::sendMassDataPacket(MassData *responsePacket)
     Serial.write(packetBuffer, sizeof(MassData));
 }
 
-void Cosco::receive() {
+void Cosco::receive(Servo_Driver* servo_cam) {
     if (Serial.available() < 1) return;
 
     uint8_t packet_id = Serial.read();
 
     switch (packet_id) {
-        case MassConfigRequest_ID:
-            if (Serial.available() >= sizeof(MassConfigRequestPacket)) {
-                Serial.readBytes(reinterpret_cast<char*>(&latest_mass_config_request),
-                                 sizeof(MassConfigRequestPacket));
-                sendMassConfigRequestPacket(&latest_mass_config_request);  // Echo back
-            }
-            break;
+        // case MassConfigRequest_ID:
+        //     if (Serial.available() >= sizeof(MassConfigRequestPacket)) {
+        //         Serial.readBytes(reinterpret_cast<char*>(&latest_mass_config_request),
+        //                          sizeof(MassConfigRequestPacket));
+        //         sendMassConfigRequestPacket(&latest_mass_config_request);  // Echo back
+        //     }
+        //     break;
 
-        case MassConfigResponse_ID:
-            if (Serial.available() >= sizeof(MassConfigResponsePacket)) {
-                Serial.readBytes(reinterpret_cast<char*>(&latest_mass_config_response),
-                                 sizeof(MassConfigResponsePacket));
-                sendMassConfigResponsePacket(&latest_mass_config_response);  // Echo back
-            }
-            break;
+        // case MassConfigResponse_ID:
+        //     if (Serial.available() >= sizeof(MassConfigResponsePacket)) {
+        //         Serial.readBytes(reinterpret_cast<char*>(&latest_mass_config_response),
+        //                          sizeof(MassConfigResponsePacket));
+        //         sendMassConfigResponsePacket(&latest_mass_config_response);  // Echo back
+        //     }
+        //     break;
 
         case ServoConfigRequest_ID:
             if (Serial.available() >= sizeof(ServoRequest)) {
                 ServoRequest request;
                 Serial.readBytes(reinterpret_cast<char*>(&request), sizeof(ServoRequest));
-                sendServoRequestPacket(&request);
+                
+                // request.id++;
+                // request.increment--;
+                // sendServoRequestPacket(&request);
+                // request.id = 0;
+                // request.increment = 20;
+                // request.zero_in = false;
+                servo_cam->set_request(request);
+                servo_cam->handle_servo();
+                break;
             }
 
         default:

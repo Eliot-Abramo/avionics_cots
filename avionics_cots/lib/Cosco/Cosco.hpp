@@ -10,6 +10,7 @@
 #include "HX711.h"
 #include <functional>    // For std::function
 #include <unordered_map> // For std::unordered_map
+#include "Servo.hpp"
 
 
 
@@ -91,7 +92,7 @@ public:
      * @param responsePacket 
      * @return null
      */    
-    void receive();
+    void receive(Servo_Driver* servo_cam);
 };
 
 #endif /* COSCO_HPP */

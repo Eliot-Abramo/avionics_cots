@@ -30,52 +30,41 @@ public:
 
     /**
      * @brief initialize a servo object and zero in
-     * Note: 'ch' is servo id, 1 for drill and 2 for camera
-     * @param ch 
      * @param servoPin 
      * @return null
      */
-    void init(int8_t ch, int8_t servoPin);
+    void init(int8_t servoPin, uint8_t channel);
 
 
     /**
      * @brief set a servo object to desired angle
      * @param angle 
-     * @param ch 
      * @return null
      */
-    void set_servo(float angle, int8_t ch);
+    void set_servo();
 
     /**
      * @brief set a servo object to predefined zero position
-     * @param ch 
      * @return null
      */
-    void zero_in(int8_t ch);
+    void zero_in();
 
     /**
      * @brief parse and handle a servo rotation request from a given serial buffer
-     * @param buffer 
      * @return null
      */
-    void handle_servo(char buffer[64]);
+    void handle_servo();
 
     /**
      * @brief convert angle to duty cycle for use with pwm
      * Note: 'ch' is needed as minimum and maximum angles/pulses can be different for each servo (hardcoded in the constructor)
      * @param angle
-     * @param ch 
      * @return float
      */
-    float angle_to_duty(float angle, int8_t ch);
+    float angle_to_duty();
 
-    /**
-     * @brief split a string according to a given delimiter
-     * @param s
-     * @param delimiter
-     * @return vector<string>
-     */
-    std::vector<std::string> split(std::string s, std::string delimiter);
+    void set_request(ServoRequest req);
+    ServoResponse get_response();
 
 private:
     uint8_t _channel;
@@ -86,17 +75,17 @@ private:
     
     bool _zero_in;
 
-    float min_angle[2];
-	float max_angle[2];
-	float min_pulse[2];
-	float max_pulse[2];
+    float min_angle;
+	float max_angle;
+	float min_pulse;
+	float max_pulse;
 
-    float zero_pulse[2];
+    float zero_pulse;
+
+    int32_t angle;
 
     ServoRequest* servoRequest;
     ServoResponse* servoResponse;
-
-    int8_t _packetSize;
 };
 
 #endif
