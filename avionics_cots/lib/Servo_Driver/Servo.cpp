@@ -99,7 +99,7 @@ void Servo_Driver::set_request(ServoRequest req) {
     *servoRequest = req;
 }
 
-ServoResponse Servo_Driver::get_response() {
-    return (*servoResponse);
+ServoResponse* Servo_Driver::get_response() {
+    return servoResponse;
 }
 

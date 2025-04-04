@@ -64,7 +64,7 @@ public:
     float angle_to_duty();
 
     void set_request(ServoRequest req);
-    ServoResponse get_response();
+    ServoResponse* get_response();
 
 private:
     uint8_t _channel;

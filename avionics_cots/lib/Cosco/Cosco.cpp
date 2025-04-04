@@ -68,6 +68,15 @@ void Cosco::sendServoRequestPacket(ServoRequest* pkt) {
     delay(5);             // give host time to react
 }
 
+void Cosco::sendServoResponsePacket(ServoResponse* pkt) {
+    uint8_t buffer[sizeof(ServoResponse) + 1];
+    buffer[0] = ServoConfigResponse_ID;
+    memcpy(buffer + 1, pkt, sizeof(ServoResponse));
+    Serial.write(buffer, sizeof(buffer));
+    Serial.flush();       // make sure it's all sent
+    delay(5);             // give host time to react
+}
+
 void Cosco::sendDustDataPacket(DustData* dust_packet) {
     uint8_t buffer[sizeof(DustData) + 1];
     buffer[0] = DustData_ID; // <<< PREPEND THE ID
@@ -120,6 +129,8 @@ void Cosco::receive(Servo_Driver* servo_cam) {
                 // request.zero_in = false;
                 servo_cam->set_request(request);
                 servo_cam->handle_servo();
+                
+                sendServoResponsePacket(servo_cam->get_response());
                 break;
             }
 
