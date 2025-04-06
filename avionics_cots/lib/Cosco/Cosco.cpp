@@ -89,8 +89,9 @@ void Cosco::receive(Servo_Driver* servo_cam, Servo_Driver* servo_drill) {
                 servo_cam->set_request(request);
                 servo_cam->handle_servo();   
                 sendServoCamResponse(servo_cam->get_response());
+                break;
             }
-            break;
+
         
         case ServoDrill_ID:
             if (Serial.available() >= sizeof(ServoRequest)) {
@@ -99,8 +100,8 @@ void Cosco::receive(Servo_Driver* servo_cam, Servo_Driver* servo_drill) {
                 servo_drill->set_request(request);
                 servo_drill->handle_servo();
                 sendServoDrillResponse(servo_drill->get_response());
+                break;
             }
-            break;
 
         default:
             break;
