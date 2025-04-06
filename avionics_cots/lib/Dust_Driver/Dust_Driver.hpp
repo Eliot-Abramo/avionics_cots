@@ -8,8 +8,7 @@
 #include <Seeed_HM330X.h>
 #include <Arduino.h>
 #include "driver/ledc.h"
-#include "monitor.hpp"
-#include "Cosco.hpp"
+// #include "monitor.hpp"
 #include "packet_definition.hpp"
 
 #ifdef ARDUINO_SAMD_VARIANT_COMPLIANCE
@@ -70,13 +69,18 @@ public:
      * @brief Loop function that reads dust sensor data periodically
      * @return null
      */
-    void loop();
+    void loop(DustData *dustData);
 
     /**
      * @brief Asks the Dust Instance if the sensor is working
      * @return alive boolean
      */
     bool is_alive();
+
+
+    void set_old_time(unsigned long oldtime);
+    unsigned long get_old_time();
+    void set_alive(bool isAlive);
 
 private:
     HM330X* sensor = nullptr;
@@ -106,8 +110,7 @@ private:
 
     bool alive = false;
 
-    SerialMonitor dust_monitor;
-    Cosco dust_handler;
+    unsigned long lastSampleTime_;
 };
 
 #endif /** DUST_SENSOR_HPP */

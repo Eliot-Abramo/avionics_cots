@@ -18,66 +18,59 @@ Dust::~Dust() {
 }
 
 void Dust::init() {
-    dust_monitor.log("Initializing Dust Sensor");
+    // dust_monitor.log("Initializing Dust Sensor");
     if (sensor->init(I2C_DUST_SDA, I2C_DUST_SCL)) {
         alive = false;
-        dust_monitor.log("Dust Sensor init failed");
+        // Serial.println("failed");
+        // dust_monitor.log("Dust Sensor init failed");
         return;
     }
     alive = true;
 
-    dust_monitor.log("Dust Sensor Initialized");
+    // dust_monitor.log("Dust Sensor Initialized");
 }
-void Dust::loop() {
+
+void Dust::set_old_time(unsigned long lastSampleTime){
+    lastSampleTime_ = lastSampleTime;
+}
+
+unsigned long Dust::get_old_time(){
+    return lastSampleTime_;
+}
+
+void Dust::set_alive(bool isAlive){
+    alive = isAlive;
+}
+
+void Dust::loop(DustData *dustData) {
     if (sensor->read_sensor_value(buf, BUFSIZE)) {
-        dust_monitor.log("Dust Sensor read failed");
+        // dust_monitor.log("Dust Sensor read failed");
         return;
     }
 
     parse_sensor_data(buf);
 
-    dust_monitor.log("PM1.0_STD:" + String(pm1_0_std_) + ", PM2.5_STD:" + String(pm2_5_std_) + ", PM10_STD:" + String(pm10__std_) + "\n");
-    dust_monitor.log("PM1.0_ATM:" + String(pm1_0_atm_) + ", PM2.5_ATM:" + String(pm2_5_atm_) + ", PM10_ATM:" + String(pm10__atm_) + "\n");
-    dust_monitor.log("NUM_PTC_0_3:" + String(num_particles_0_3_) + ", NUM_PTC_0_5:" + String(num_particles_0_5_) +
-                        ", NUM_PTC_1_0:" + String(num_particles_1_0_) + ", NUM_PTC_2_5:" + String(num_particles_2_5_) +
-                        ", NUM_PTC_5_0:" + String(num_particles_5_0_) + ", NUM_PTC_10 :" + String(num_particles_10__) + "\n");
-
-    DustData packet = {
+    *dustData = {
         .pm1_0_std = pm1_0_std_,
         .pm2_5_std = pm2_5_std_,
-        .pm10__std = pm10__std_,
+        .pm10_std = pm10__std_,
         .pm1_0_atm = pm1_0_atm_,
         .pm2_5_atm = pm2_5_atm_,
-        .pm10__atm = pm10__atm_,
+        .pm10_atm = pm10__atm_,
         .num_particles_0_3 = num_particles_0_3_,
         .num_particles_0_5 = num_particles_0_5_,
         .num_particles_1_0 = num_particles_1_0_,
         .num_particles_2_5 = num_particles_2_5_,
         .num_particles_5_0 = num_particles_5_0_,
-        .num_particles_10_ = num_particles_10__,
+        .num_particles_10 = num_particles_10__,
     };
 
-    dust_monitor.log("BEGIN SEND DATA\n");
-    
-    dust_handler.sendDustDataPacket(&packet);
-
-    dust_monitor.log("END SEND DATA\n");
-
-    DustData received_packet = {0};
-
-    dust_handler.receive(&received_packet);
-    dust_monitor.log("RECEIVED: " + String(received_packet.pm1_0_std) + " " + String(received_packet.pm2_5_std) + " " + String(received_packet.pm10__std) + "\n");
-    dust_monitor.log("RECEIVED: " + String(received_packet.pm1_0_atm) + " " + String(received_packet.pm2_5_atm) + " " + String(received_packet.pm10__atm) + "\n");
-    dust_monitor.log("RECEIVED: " + String(received_packet.num_particles_0_3) + " " + String(received_packet.num_particles_0_5) + " " + String(received_packet.num_particles_1_0) + "\n");
-    dust_monitor.log("RECEIVED: " + String(received_packet.num_particles_2_5) + " " + String(received_packet.num_particles_5_0) + " " + String(received_packet.num_particles_10_) + "\n");
-
-    delay(1000 / SAMPLING_RATE);
 }
 
 void Dust::parse_sensor_data(uint8_t* data) {
     uint16_t checksum = 0;
 
-    dust_monitor.log("SIZE OF DATA = " + String(sizeof(*data)));
+    // dust_monitor.log("SIZE OF DATA = " + String(sizeof(*data)));
 
     if (data != NULL) {
         pm2_5_std_ = ((uint16_t)(data[PM2_5_STD] << 8) + data[PM2_5_STD+1]);
@@ -102,11 +95,11 @@ void Dust::parse_sensor_data(uint8_t* data) {
     for (size_t i = 0; i < CHECKSUM; ++i) {
         calculated_checksum += data[i];
     }
-    if (calculated_checksum == checksum) {
-        dust_monitor.log("CHECKSUM SUCCESS " + String(calculated_checksum) + "\n");
-    } else {
-        dust_monitor.log("CHECKSUM FAILED, CALCULATED: " + String(calculated_checksum) + " ACTUAL: " + String(checksum) + "\n");
-    }
+    // if (calculated_checksum == checksum) {
+    //     dust_monitor.log("CHECKSUM SUCCESS " + String(calculated_checksum) + "\n");
+    // } else {
+    //     dust_monitor.log("CHECKSUM FAILED, CALCULATED: " + String(calculated_checksum) + " ACTUAL: " + String(checksum) + "\n");
+    // }
 }
 
 bool Dust::is_alive() {

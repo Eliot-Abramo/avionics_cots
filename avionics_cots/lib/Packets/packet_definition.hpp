@@ -9,8 +9,6 @@
 #include <iostream>
 #include <packet_id.hpp>
 
-#pragma pack(push, 1)
-
 struct LEDMessage {
     uint8_t low;
     uint8_t high;
@@ -21,24 +19,16 @@ struct LEDMessage {
 struct DustData {
     uint16_t pm1_0_std;
     uint16_t pm2_5_std;
-    uint16_t pm10__std;
+    uint16_t pm10_std;
     uint16_t pm1_0_atm;
     uint16_t pm2_5_atm;
-    uint16_t pm10__atm;
+    uint16_t pm10_atm;
     uint16_t num_particles_0_3;
     uint16_t num_particles_0_5;
     uint16_t num_particles_1_0;
     uint16_t num_particles_2_5;
     uint16_t num_particles_5_0;
-    uint16_t num_particles_10_;
-};
-
-struct MassCalibPacket {
-    uint16_t id;
-    float expected_weight;
-    uint32_t num_samples;
-    bool calibrate_offset;
-    bool calibrate_scale;
+    uint16_t num_particles_10;
 };
 
 struct FourInOne {
@@ -49,31 +39,14 @@ struct FourInOne {
     float ph;
 };
 
+struct DustReset {
+    bool reset;
+};
+
 struct ServoResponse {
     uint16_t id;
     int32_t angle;
     bool success;
-};
-
-struct MassConfigPacket {
-    uint16_t id;
-    float offset;
-    float scale;
-    bool set_offset;
-    bool set_scale;
-};
-
-struct MassConfigResponsePacket {
-    uint16_t id;
-    float offset;
-    float scale;
-    bool offset_set;
-    bool scale_set;
-};
-
-struct MassArray {
-    uint16_t id;
-    float mass;
 };
 
 struct NPK {
@@ -104,12 +77,5 @@ struct ServoRequest {
 struct LEDResponse {
     bool success;
 };
-
-struct MassConfigRequestPacket {
-    uint16_t id;
-    bool req_config;
-};
-
-#pragma pack(pop)
 
 #endif /* PACKET_DEFINITION_H */

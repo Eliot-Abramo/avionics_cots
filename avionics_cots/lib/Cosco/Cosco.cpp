@@ -8,9 +8,6 @@
 #include <packet_id.hpp>
 #include <packet_definition.hpp>
 
-extern MassConfigRequestPacket latest_mass_config_request;
-extern MassConfigResponsePacket latest_mass_config_response;
-
 // Macro de Ilyas
 // #define HANDLE_PACKET(packet_type) do {                                         \
 //     if (len == sizeof(packet_type)) {                                           \
@@ -32,49 +29,36 @@ Cosco::Cosco()
 
 Cosco::~Cosco(){}
 
-void Cosco::sendMassConfigPacket(MassConfigPacket *configPacket)
+void Cosco::sendMassPacket(MassPacket *responsePacket)
 {
-    // Serialize and send MassConfigPacket
-    uint8_t packetBuffer[sizeof(MassConfigPacket) + 1];
-    packetBuffer[0] = MassConfig_ID; 
-    memcpy(packetBuffer + 1, configPacket, sizeof(MassConfigPacket));
-    Serial.write(packetBuffer, sizeof(MassConfigPacket));
+    // Serialize and send sendMassDataPacket
+    uint8_t packetBuffer[sizeof(MassPacket) + 1];
+    packetBuffer[0] = MassData_ID;
+    memcpy(packetBuffer, responsePacket, sizeof(MassPacket));
+    Serial.write(packetBuffer, sizeof(MassPacket));
 }
 
-void Cosco::sendMassConfigRequestPacket(MassConfigRequestPacket* pkt) {
-    uint8_t buffer[sizeof(MassConfigRequestPacket) + 1];
-    buffer[0] = MassConfigRequest_ID;
-    memcpy(buffer + 1, pkt, sizeof(MassConfigRequestPacket));
-    Serial.write(buffer, sizeof(buffer));
-    Serial.flush();       // make sure it's all sent
-    delay(5);             // give host time to react
-}
+// void Cosco::sendServoRequestPacket(ServoRequest* pkt) {
+//     uint8_t buffer[sizeof(ServoRequest) + 1];
+//     buffer[0] = ServoConfigRequest_ID;
+//     memcpy(buffer + 1, pkt, sizeof(ServoRequest));
+//     Serial.write(buffer, sizeof(buffer));
+//     Serial.flush();       // make sure it's all sent
+//     delay(5);             // give host time to react
+// }
 
-void Cosco::sendMassConfigResponsePacket(MassConfigResponsePacket* pkt) {
-    uint8_t buffer[sizeof(MassConfigResponsePacket) + 1];
-    buffer[0] = MassConfigResponse_ID;
-    memcpy(buffer + 1, pkt, sizeof(MassConfigResponsePacket));
-    Serial.write(buffer, sizeof(buffer));
-    Serial.flush();       // make sure it's all sent
-    delay(5);             // give host time to react
-}
-
-void Cosco::sendServoRequestPacket(ServoRequest* pkt) {
-    uint8_t buffer[sizeof(ServoRequest) + 1];
-    buffer[0] = ServoConfigRequest_ID;
-    memcpy(buffer + 1, pkt, sizeof(ServoRequest));
-    Serial.write(buffer, sizeof(buffer));
-    Serial.flush();       // make sure it's all sent
-    delay(5);             // give host time to react
-}
-
-void Cosco::sendServoResponsePacket(ServoResponse* pkt) {
+void Cosco::sendServoCamResponse(ServoResponse* pkt) {
     uint8_t buffer[sizeof(ServoResponse) + 1];
-    buffer[0] = ServoConfigResponse_ID;
+    buffer[0] = ServoCam_ID;
     memcpy(buffer + 1, pkt, sizeof(ServoResponse));
     Serial.write(buffer, sizeof(buffer));
-    Serial.flush();       // make sure it's all sent
-    delay(5);             // give host time to react
+}
+
+void Cosco::sendServoDrillResponse(ServoResponse* pkt) {
+    uint8_t buffer[sizeof(ServoResponse) + 1];
+    buffer[0] = ServoDrill_ID;
+    memcpy(buffer + 1, pkt, sizeof(ServoResponse));
+    Serial.write(buffer, sizeof(buffer));
 }
 
 void Cosco::sendDustDataPacket(DustData* pkt) {
@@ -82,58 +66,41 @@ void Cosco::sendDustDataPacket(DustData* pkt) {
     buffer[0] = DustData_ID;
     memcpy(buffer + 1, pkt, sizeof(DustData));
     Serial.write(buffer, sizeof(buffer));
-    Serial.flush();       // make sure it's all sent
-    delay(5);             // give host time to react
 }
 
-void Cosco::sendMassDataPacket(MassData *responsePacket)
-{
-    // Serialize and send sendMassDataPacket
-    uint8_t packetBuffer[sizeof(MassData) + 1];
-    packetBuffer[0] = MassData_ID;
-    memcpy(packetBuffer, responsePacket, sizeof(MassData));
-    Serial.write(packetBuffer, sizeof(MassData));
-}
-
-void Cosco::receive(Servo_Driver* servo_cam) {
+void Cosco::receive(Servo_Driver* servo_cam, Servo_Driver* servo_drill) {
     if (Serial.available() < 1) return;
 
     uint8_t packet_id = Serial.read();
 
     switch (packet_id) {
-        // case MassConfigRequest_ID:
-        //     if (Serial.available() >= sizeof(MassConfigRequestPacket)) {
-        //         Serial.readBytes(reinterpret_cast<char*>(&latest_mass_config_request),
-        //                          sizeof(MassConfigRequestPacket));
-        //         sendMassConfigRequestPacket(&latest_mass_config_request);  // Echo back
+        // case MassData_ID:
+        //     if (Serial.available() >= sizeof(MassData_ID)) {
+        //         MassPacket request;
+        //         Serial.readBytes(reinterpret_cast<char*>(&request), sizeof(MassData_ID));
+        //         sendMassPacket(&request);
         //     }
         //     break;
 
-        // case MassConfigResponse_ID:
-        //     if (Serial.available() >= sizeof(MassConfigResponsePacket)) {
-        //         Serial.readBytes(reinterpret_cast<char*>(&latest_mass_config_response),
-        //                          sizeof(MassConfigResponsePacket));
-        //         sendMassConfigResponsePacket(&latest_mass_config_response);  // Echo back
-        //     }
-        //     break;
-
-        case ServoConfigRequest_ID:
+        case ServoCam_ID:
             if (Serial.available() >= sizeof(ServoRequest)) {
                 ServoRequest request;
-                Serial.readBytes(reinterpret_cast<char*>(&request), sizeof(ServoRequest));
-                
-                // request.id++;
-                // request.increment--;
-                // sendServoRequestPacket(&request);
-                // request.id = 0;
-                // request.increment = 20;
-                // request.zero_in = false;
+                Serial.readBytes(reinterpret_cast<char*>(&request), sizeof(ServoRequest));                
                 servo_cam->set_request(request);
-                servo_cam->handle_servo();
-                
-                sendServoResponsePacket(servo_cam->get_response());
-                break;
+                servo_cam->handle_servo();   
+                sendServoCamResponse(servo_cam->get_response());
             }
+            break;
+        
+        case ServoDrill_ID:
+            if (Serial.available() >= sizeof(ServoRequest)) {
+                ServoRequest request;
+                Serial.readBytes(reinterpret_cast<char*>(&request), sizeof(ServoRequest));                
+                servo_drill->set_request(request);
+                servo_drill->handle_servo();
+                sendServoDrillResponse(servo_drill->get_response());
+            }
+            break;
 
         default:
             break;

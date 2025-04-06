@@ -27,37 +27,12 @@ public:
     ~Cosco();
     
     /**
-     * @brief Send mass configuration packet
-     * 
-     * @param configPacket: pointer to packet to be sent. Defined in Packets->packet_definition.hpp
-     * @return null 
-     */
-    void sendMassConfigPacket(MassConfigPacket* configPacket);
-
-    /**
-     * @brief Send mass configuration packet
-     * 
-     * @param configPacket: pointer to packet to be sent. Defined in Packets->->packet_definition.hpp
-     * @return null 
-     */
-    void sendMassConfigRequestPacket(MassConfigRequestPacket* requestPacket);
-
-    /**
-     * @brief Send mass configuration response packet
-     * 
-     * @param configPacket: pointer to packet to be sent. Defined in Packets->->packet_definition.hpp
-     * @return null 
-     */
-    void sendMassConfigResponsePacket(MassConfigResponsePacket* responsePacket);
-
-    /**
      * @brief Send mass data  packet
      * 
      * @param configPacket: pointer to packet to be sent. Defined in Packets->->packet_definition.hpp
      * @return null 
      */
-    void sendMassDataPacket(MassData *responsePacket);
-
+    void sendMassPacket(MassPacket *responsePacket);
 
     /**
      * @brief Send mass configuration packet
@@ -65,7 +40,7 @@ public:
      * @param requestPacket: pointer to packet to be sent. Defined in Packets->->packet_definition.hpp
      * @return null 
      */
-    void sendServoRequestPacket(ServoRequest* requestPacket);
+    // void sendServoRequestPacket(ServoRequest* requestPacket);
 
     /**
      * @brief Send mass configuration response packet
@@ -73,7 +48,8 @@ public:
      * @param responsePacket: pointer to packet to be sent. Defined in Packets->->packet_definition.hpp
      * @return null 
      */
-    void sendServoResponsePacket(ServoResponse* responsePacket);
+    void sendServoCamResponse(ServoResponse* pkt);
+    void sendServoDrillResponse(ServoResponse* pkt);
 
     /**
      * @brief Send sensor data packet
@@ -92,7 +68,7 @@ public:
      * @param responsePacket 
      * @return null
      */    
-    void receive(Servo_Driver* servo_cam);
+    void receive(Servo_Driver* servo_cam, Servo_Driver* servo_drill);
 };
 
 #endif /* COSCO_HPP */
