@@ -24,34 +24,35 @@ void setup() {
   rtc_clk_cpu_freq_to_config(RTC_CPU_FREQ_80M, &config);
   rtc_clk_cpu_freq_set_config_fast(&config);
 
+  
   servo_cam->init(13, 0);
   servo_drill->init(12, 1);
 
+  mass_drill.begin(16, 4);
   mass_drill.set_scale(-180);
-  Serial.println("Done Set");
   mass_drill.tare(); 
-  Serial.println("Done Tare");
   // put the ADC in sleep mode
   mass_drill.power_down();         
 
+  dust->init();
+
   Serial.begin(115200);
-  Serial.println("Done Calib");
   
 }
 
 void loop() {
-  // cosco.receive(servo_cam, servo_drill);
+  cosco.receive(servo_cam, servo_drill);
 
   // below is a test to send dust data every 2 seconds
-  // static uint32_t last_send = 0;
+  static uint32_t last_send_dust = 0;
   static uint32_t last_send_mass = 0;
 
-  // if (millis() - last_send >= 2000) {
-  //   DustData dust_packet;
-  //   dust->loop(&dust_packet);
-  //   cosco.sendDustDataPacket(&dust_packet);
-  //   last_send = millis();
-  // }
+  if (millis() - last_send_dust >= 2000) {
+    DustData dust_packet;
+    dust->loop(&dust_packet);
+    cosco.sendDustDataPacket(&dust_packet);
+    last_send_dust = millis();
+  }
 
   if(millis() - last_send_mass >= 5000){
     mass_drill.power_up();
@@ -59,7 +60,6 @@ void loop() {
       0,
       mass_drill.get_units(10)
     };
-    Serial.printf("Mass: %d", mass_drill.get_units(10));
   //   cosco.sendMassPacket(&drill);
     mass_drill.power_down();
   }
