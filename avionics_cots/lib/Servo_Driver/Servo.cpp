@@ -74,18 +74,18 @@ void Servo_Driver::handle_servo() {
 
     if (servoRequest != nullptr) {
         int32_t new_angle = angle + servoRequest->increment;
-        if (!(new_angle <= max_angle and new_angle >= min_angle)) { //check for angle within bounds
-            servoResponse->id = servoRequest->id;
-            servoResponse->angle = angle;
-            servoResponse->success = false;
-        }
-        else if (servoRequest->zero_in) { //check if zero_in was requested
+        if (servoRequest->zero_in) { //check if zero_in was requested
             zero_in();
             servoResponse->id = servoRequest->id;
             servoResponse->angle = 0; // cancel rotation and zero in
             servoResponse->success = true;
-        }
-        else { //set servo to angle if OK
+        } else if (!(new_angle <= max_angle and new_angle >= min_angle)) { //check for angle within bounds
+            angle = new_angle <= min_angle ? min_angle : max_angle;
+            set_servo();
+            servoResponse->id = servoRequest->id;
+            servoResponse->angle = angle;
+            servoResponse->success = false;
+        } else { //set servo to angle if OK
             angle = new_angle;
             set_servo();            
             servoResponse->id = servoRequest->id;
