@@ -75,6 +75,7 @@ void Servo_Driver::handle_servo() {
     if (servoRequest != nullptr) {
         int32_t new_angle = angle + servoRequest->increment;
         if (servoRequest->zero_in) { //check if zero_in was requested
+            angle = 0;
             zero_in();
             servoResponse->id = servoRequest->id;
             servoResponse->angle = 0; // cancel rotation and zero in
