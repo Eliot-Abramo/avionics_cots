@@ -54,13 +54,13 @@ void loop() {
     last_send_dust = millis();
   }
 
-  if(millis() - last_send_mass >= 5000){
+  if(millis() - last_send_mass >= 1000){
     mass_drill.power_up();
     MassPacket drill = {
       0,
-      mass_drill.get_units(10)
+      mass_drill.get_units(20)
     };
-  //   cosco.sendMassPacket(&drill);
+    cosco.sendMassPacket(&drill);
     mass_drill.power_down();
   }
 

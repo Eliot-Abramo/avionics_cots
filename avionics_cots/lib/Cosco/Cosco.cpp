@@ -34,7 +34,7 @@ void Cosco::sendMassPacket(MassPacket *responsePacket)
     // Serialize and send sendMassDataPacket
     uint8_t packetBuffer[sizeof(MassPacket) + 1];
     packetBuffer[0] = MassData_ID;
-    memcpy(packetBuffer, responsePacket, sizeof(MassPacket));
+    memcpy(packetBuffer + 1, responsePacket, sizeof(MassPacket));
     Serial.write(packetBuffer, sizeof(MassPacket));
 }
 
