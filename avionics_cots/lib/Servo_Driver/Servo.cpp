@@ -9,8 +9,8 @@ Servo_Driver::Servo_Driver()
     servoRequest = new ServoRequest();
     servoResponse = new ServoResponse();
 
-    min_angle = -180;
-	max_angle = 180;
+    min_angle = -200;
+	max_angle = 200;
 	min_pulse = 500;
 	max_pulse = 2500;
 

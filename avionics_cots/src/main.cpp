@@ -18,12 +18,18 @@ Servo_Driver* servo_drill = new Servo_Driver();
 HX711 mass_drill;
 Dust* dust = new Dust();
 
+/**
+ * servo id 1 = cam front
+ * servo id 2 = drill clapet 
+ * mass id 0 = mass drill
+ * mass id 1 = mass rover
+ */
+
 void setup() {
   rtc_cpu_freq_config_t config;
   rtc_clk_cpu_freq_get_config(&config);
   rtc_clk_cpu_freq_to_config(RTC_CPU_FREQ_80M, &config);
   rtc_clk_cpu_freq_set_config_fast(&config);
-
   
   servo_cam->init(13, 0);
   servo_drill->init(12, 1);
@@ -32,9 +38,9 @@ void setup() {
   mass_drill.set_scale(-180);
   mass_drill.tare(); 
   // put the ADC in sleep mode
-  mass_drill.power_down();         
+  // mass_drill.power_down();         
 
-  dust->init();
+  // dust->init();
 
   Serial.begin(115200);
   
@@ -44,24 +50,27 @@ void loop() {
   cosco.receive(servo_cam, servo_drill);
 
   // below is a test to send dust data every 2 seconds
-  static uint32_t last_send_dust = 0;
+  // static uint32_t last_send_dust = 0;
   static uint32_t last_send_mass = 0;
 
-  if (millis() - last_send_dust >= 2000) {
-    DustData dust_packet;
-    dust->loop(&dust_packet);
-    cosco.sendDustDataPacket(&dust_packet);
-    last_send_dust = millis();
-  }
+  // if (millis() - last_send_dust >= 2000) {
+  //   DustData dust_packet;
+  //   dust->loop(&dust_packet);
+  //   cosco.sendDustDataPacket(&dust_packet);
+  //   last_send_dust = millis();
+  // }
 
   if(millis() - last_send_mass >= 1000){
-    mass_drill.power_up();
-    MassPacket drill = {
-      0,
-      mass_drill.get_units(20)
-    };
-    cosco.sendMassPacket(&drill);
-    mass_drill.power_down();
+    if(mass_drill.is_ready()){
+      // mass_drill.power_up();
+      float reading = mass_drill.get_units(20); 
+      MassPacket drill = {
+        0,
+        reading
+      };
+      cosco.sendMassPacket(&drill);
+    }
+    // mass_drill.power_down();
   }
 
 }

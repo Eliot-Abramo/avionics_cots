@@ -29,13 +29,11 @@ Cosco::Cosco()
 
 Cosco::~Cosco(){}
 
-void Cosco::sendMassPacket(MassPacket *responsePacket)
-{
-    // Serialize and send sendMassDataPacket
-    uint8_t packetBuffer[sizeof(MassPacket) + 1];
-    packetBuffer[0] = MassData_ID;
-    memcpy(packetBuffer + 1, responsePacket, sizeof(MassPacket));
-    Serial.write(packetBuffer, sizeof(MassPacket));
+void Cosco::sendMassPacket(MassPacket* pkt) {
+    uint8_t buffer[sizeof(MassPacket) + 1];
+    buffer[0] = MassData_ID;
+    memcpy(buffer + 1, pkt, sizeof(MassPacket));
+    Serial.write(buffer, sizeof(buffer));
 }
 
 // void Cosco::sendServoRequestPacket(ServoRequest* pkt) {
