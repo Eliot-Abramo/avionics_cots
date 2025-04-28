@@ -77,7 +77,6 @@ public:
      */
     bool is_alive();
 
-
     void set_old_time(unsigned long oldtime);
     unsigned long get_old_time();
     void set_alive(bool isAlive);

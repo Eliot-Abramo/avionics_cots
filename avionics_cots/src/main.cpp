@@ -35,12 +35,10 @@ void setup() {
   servo_drill->init(12, 1);
 
   mass_drill.begin(16, 4);
-  mass_drill.set_scale(-180);
+  mass_drill.set_scale(-2000);
   mass_drill.tare(); 
-  // put the ADC in sleep mode
-  // mass_drill.power_down();         
 
-  // dust->init();
+  dust->init();
 
   Serial.begin(115200);
   
@@ -50,19 +48,20 @@ void loop() {
   cosco.receive(servo_cam, servo_drill);
 
   // below is a test to send dust data every 2 seconds
-  // static uint32_t last_send_dust = 0;
+  static uint32_t last_send_dust = 0;
   static uint32_t last_send_mass = 0;
 
-  // if (millis() - last_send_dust >= 2000) {
-  //   DustData dust_packet;
-  //   dust->loop(&dust_packet);
-  //   cosco.sendDustDataPacket(&dust_packet);
-  //   last_send_dust = millis();
-  // }
+  if (millis() - last_send_dust >= 2000) {
+    if(dust->is_alive()){
+      DustData dust_packet;
+      dust->loop(&dust_packet);
+      cosco.sendDustDataPacket(&dust_packet);
+      last_send_dust = millis();
+    }
+  }
 
   if(millis() - last_send_mass >= 1000){
     if(mass_drill.is_ready()){
-      // mass_drill.power_up();
       float reading = mass_drill.get_units(20); 
       MassPacket drill = {
         0,
@@ -70,7 +69,6 @@ void loop() {
       };
       cosco.sendMassPacket(&drill);
     }
-    // mass_drill.power_down();
   }
 
 }
