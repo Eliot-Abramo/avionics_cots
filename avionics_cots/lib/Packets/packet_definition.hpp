@@ -10,10 +10,8 @@
 #include <packet_id.hpp>
 
 struct LEDMessage {
-    uint8_t low;
-    uint8_t high;
     uint8_t system;
-    uint8_t mode;
+    uint8_t state;
 };
 
 struct DustData {
@@ -60,7 +58,6 @@ struct BMS {
     std::string status;
     float v_bat;
     float current;
-    uint32_t voltages[4];
 };
 
 struct MassPacket {

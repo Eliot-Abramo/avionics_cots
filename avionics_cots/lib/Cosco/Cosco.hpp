@@ -32,7 +32,7 @@ public:
      * @param configPacket: pointer to packet to be sent. Defined in Packets->->packet_definition.hpp
      * @return null 
      */
-    void sendMassPacket(MassPacket *responsePacket);
+    void sendMassPacket(MassPacket *responsePacket, uint8_t ID);
 
     /**
      * @brief Send mass configuration packet
@@ -48,8 +48,8 @@ public:
      * @param responsePacket: pointer to packet to be sent. Defined in Packets->->packet_definition.hpp
      * @return null 
      */
-    void sendServoCamResponse(ServoResponse* pkt);
-    void sendServoDrillResponse(ServoResponse* pkt);
+    // void sendServoCamResponse(ServoResponse* pkt);
+    // void sendServoDrillResponse(ServoResponse* pkt);
 
     /**
      * @brief Send sensor data packet

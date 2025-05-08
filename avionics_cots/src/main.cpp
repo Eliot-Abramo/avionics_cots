@@ -16,13 +16,14 @@ Cosco cosco;
 Servo_Driver* servo_cam = new Servo_Driver();
 Servo_Driver* servo_drill = new Servo_Driver();
 HX711 mass_drill;
+HX711 mass_hd;
 Dust* dust = new Dust();
 
 /**
  * servo id 1 = cam front
  * servo id 2 = drill clapet 
- * mass id 0 = mass drill
- * mass id 1 = mass rover
+ * mass id 3 = mass drill
+ * mass id 4 = mass rover
  */
 
 void setup() {
@@ -35,8 +36,12 @@ void setup() {
   servo_drill->init(12, 1);
 
   mass_drill.begin(16, 4);
-  mass_drill.set_scale(-2000);
+  mass_drill.set_scale(-395.606476);
   mass_drill.tare(); 
+
+  mass_hd.begin(15, 2);
+  mass_hd.set_scale(-395.606476);
+  mass_hd.tare(); 
 
   dust->init();
 
@@ -50,6 +55,7 @@ void loop() {
   // below is a test to send dust data every 2 seconds
   static uint32_t last_send_dust = 0;
   static uint32_t last_send_mass = 0;
+  static uint8_t mass_to_send = 0;
 
   if (millis() - last_send_dust >= 2000) {
     if(dust->is_alive()){
@@ -60,15 +66,36 @@ void loop() {
     }
   }
 
-  if(millis() - last_send_mass >= 1000){
-    if(mass_drill.is_ready()){
-      float reading = mass_drill.get_units(20); 
-      MassPacket drill = {
-        0,
-        reading
-      };
-      cosco.sendMassPacket(&drill);
+  if(millis() - last_send_mass >= 500){
+    switch(mass_to_send){
+      case 0:
+        mass_to_send = 1;
+        if(mass_drill.is_ready()){
+        float reading = mass_drill.get_units(20); 
+        MassPacket drill = {
+          MassDrill_ID,
+          reading
+        };
+        cosco.sendMassPacket(&drill, MassDrill_ID);
+      }
+      break;
+
+      case 1:
+        mass_to_send = 0;
+        if(mass_hd.is_ready()){
+          float reading = mass_hd.get_units(20); 
+          MassPacket hd = {
+            MassHD_ID,
+            reading
+          };
+          cosco.sendMassPacket(&hd, MassHD_ID);
+        }
+      break;
+
+      default:
+        break;
     }
   }
+
 
 }
