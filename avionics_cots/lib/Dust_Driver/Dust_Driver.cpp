@@ -44,7 +44,20 @@ void Dust::set_alive(bool isAlive){
 
 void Dust::loop(DustData *dustData) {
     if (sensor->read_sensor_value(buf, BUFSIZE)) {
-        // dust_monitor.log("Dust Sensor read failed");
+        *dustData = {
+            .pm1_0_std = 9999,
+            .pm2_5_std = 9999,
+            .pm10_std = 9999,
+            .pm1_0_atm = 9999,
+            .pm2_5_atm = 9999,
+            .pm10_atm = 9999,
+            .num_particles_0_3 = 9999,
+            .num_particles_0_5 = 9999,
+            .num_particles_1_0 = 9999,
+            .num_particles_2_5 = 9999,
+            .num_particles_5_0 = 9999,
+            .num_particles_10 = 9999,
+        };
         return;
     }
 

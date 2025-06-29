@@ -63,6 +63,7 @@ struct BMS {
 struct MassPacket {
     uint8_t id;
     float mass;
+    bool tare;
 };
 
 struct ServoRequest {

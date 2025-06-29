@@ -26,7 +26,7 @@ void Cosco::sendMassPacket(MassPacket* pkt, uint8_t ID) {
 //     uint8_t buffer[sizeof(ServoRequest) + 1];
 //     buffer[0] = ServoConfigRequest_ID;
 //     memcpy(buffer + 1, pkt, sizeof(ServoRequest));
-//     Serial.write(buffer, sizeof(buffer));
+//     Serial.write(buffer, sizeof(buffer)); 
 //     Serial.flush();       // make sure it's all sent
 //     delay(5);             // give host time to react
 // }
@@ -68,7 +68,6 @@ void Cosco::receive(Servo_Driver* servo_cam, Servo_Driver* servo_drill) {
                 break;
             }
 
-        
         case ServoDrill_ID:
             if (Serial.available() >= sizeof(ServoRequest)) {
                 ServoRequest request;
@@ -82,4 +81,7 @@ void Cosco::receive(Servo_Driver* servo_cam, Servo_Driver* servo_drill) {
         default:
             break;
     }
+
+    // mass_hd->set_scale(100);
+    // printf("Set: %d", mass_hd->get_scale());
 }
