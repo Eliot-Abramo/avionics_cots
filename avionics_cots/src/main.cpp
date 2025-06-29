@@ -52,7 +52,7 @@ void setup() {
 
   preferences.end();
 
-  printf("drill: %d \n hd: %d \n", scale_drill, scale_hd);
+  //printf("drill: %d \n hd: %d \n", scale_drill, scale_hd);
 
   servo_cam->init(12, 0);
   servo_drill->init(13, 1);
@@ -127,7 +127,7 @@ void loop() {
             reading
           };
           cosco.sendMassPacket(&hd, MassHD_ID);
-          printf("mass hd: %d \n", reading);
+          //printf("mass hd: %d \n", reading);
           // printf("mass hd: %d \n", mass_hd.get_scale());
         }
       break;

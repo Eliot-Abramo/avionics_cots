@@ -11,14 +11,12 @@
 
 // Mass packets
 #define MassDrill_ID 3
-#define MassDrill_Request_ID 4
-#define MassHD_ID 5
-#define MassHD_Request_ID 6
+#define MassHD_ID 4
 
 // Servo packets
-#define Servo_ID 7
-#define ServoResponse_ID 8
-#define ServoConfigResponse_ID 9
+#define Servo_ID 6
+#define ServoResponse_ID 7
+#define ServoConfigResponse_ID 10
 
 // LED packets
 #define LED0_ID 11
@@ -30,4 +28,3 @@
 
 // Dust packets
 #define DustData_ID 15
-
