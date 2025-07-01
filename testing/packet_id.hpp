@@ -6,18 +6,19 @@
 #include "packet_definition.hpp"
 
 // Servo packets
-#define ServoDrill_ID 1
-#define ServoDrill_Response_ID 2
-
-#define ServoCam_ID 3
-#define ServoCam_Response_ID 4
+#define ServoCam_ID 1
+#define ServoDrill_ID 2
 
 // Mass packets
-#define MassDrill_ID 5
-#define MassDrill_Request_ID 6
+#define MassDrill_ID 3
+#define MassDrill_Request_ID 4
+#define MassHD_ID 5
+#define MassHD_Request_ID 6
 
-#define MassHD_ID 7
-#define MassHD_Request_ID 8
+// Servo packets
+#define Servo_ID 7
+#define ServoResponse_ID 8
+#define ServoConfigResponse_ID 9
 
 // LED packets
 #define LED0_ID 11
@@ -29,5 +30,4 @@
 
 // Dust packets
 #define DustData_ID 15
-
 #define Heartbeat_ID 20

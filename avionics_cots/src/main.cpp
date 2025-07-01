@@ -52,7 +52,7 @@ void setup() {
 
   preferences.end();
 
-  printf("drill: %d \n hd: %d \n", scale_drill, scale_hd);
+  // printf("drill: %d \n hd: %d \n", scale_drill, scale_hd);
 
   servo_cam->init(12, 0);
   servo_drill->init(13, 1);
@@ -83,7 +83,7 @@ void loop() {
   static uint32_t last_send_mass = 0;
   static uint8_t mass_to_send = 0;
 
-  if (millis() - last_send_dust >= 2000) {
+  if (millis() - last_send_dust >= 1000) {
     if(dust->is_alive()){
       DustData dust_packet;
       dust->loop(&dust_packet);
@@ -127,7 +127,7 @@ void loop() {
             reading
           };
           cosco.sendMassPacket(&hd, MassHD_ID);
-          printf("mass hd: %d \n", reading);
+          // printf("mass hd: %d \n", reading);
           // printf("mass hd: %d \n", mass_hd.get_scale());
         }
       break;
@@ -137,5 +137,6 @@ void loop() {
     }
   }
 
+  cosco.sendHeartbeat();
 
 }

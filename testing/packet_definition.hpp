@@ -14,11 +14,6 @@ struct LEDMessage {
     uint8_t state;
 };
 
-struct MassRequest {
-    bool tare;
-    float scale;
-};
-
 struct DustData {
     uint16_t pm1_0_std;
     uint16_t pm2_5_std;
@@ -59,10 +54,6 @@ struct NPK {
     uint16_t potassium;
 };
 
-struct Heartbeat {
-    uint8_t dummy;
-};
-
 struct BMS {
     std::string status;
     float v_bat;
@@ -72,6 +63,7 @@ struct BMS {
 struct MassPacket {
     uint8_t id;
     float mass;
+    bool tare;
 };
 
 struct ServoRequest {

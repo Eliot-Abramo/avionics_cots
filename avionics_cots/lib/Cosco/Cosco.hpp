@@ -69,6 +69,11 @@ public:
      * @return null
      */    
     void receive(Servo_Driver* servo_cam, Servo_Driver* servo_drill);
+
+
+    void sendHeartbeat();
+
+
 };
 
 #endif /* COSCO_HPP */
