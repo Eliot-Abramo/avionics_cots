@@ -1,7 +1,6 @@
 /**
  * @file main.cpp
  * @author Eliot Abramo
- * @brief  DUMB‑SIMPLE dual load‑cell sketch – zero classes, zero structs.
  */
 
 #include <Arduino.h>
@@ -12,7 +11,6 @@
 #include "Cosco.hpp"
 #include "Servo.hpp"
 #include "Dust_Driver.hpp"
-// #include "load_cell.hpp"
 
 /**
  * servo id 1 = cam front

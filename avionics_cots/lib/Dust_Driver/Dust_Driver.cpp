@@ -1,6 +1,6 @@
 /**
  * @file Servo.cpp
- * @author Ilyas Asmouki
+ * @author Eliot Abramo, Ilyas Asmouki
 */
 #include "Dust_Driver.hpp"
 

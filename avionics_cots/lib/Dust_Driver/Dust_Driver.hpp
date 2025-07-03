@@ -1,6 +1,6 @@
 /**
  * @file Dust_Driver.hpp
- * @author Ilyas Asmouki
+ * @author Eliot Abramo, Ilyas Asmouki
 */
 #ifndef DUST_SENSOR_HPP
 #define DUST_SENSOR_HPP

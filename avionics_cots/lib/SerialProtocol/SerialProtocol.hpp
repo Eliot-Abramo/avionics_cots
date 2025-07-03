@@ -1,3 +1,9 @@
+/**
+ * @file SerialProtocol.hpp
+ * @author Eliot Abramo
+ * @brief 
+ * @date 2025-07-03
+ */
 #ifndef SERIAL_PROTOCOL_HPP
 #define SERIAL_PROTOCOL_HPP
 
