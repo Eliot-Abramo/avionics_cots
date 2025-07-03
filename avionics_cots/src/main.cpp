@@ -120,7 +120,6 @@ void setup() {
   dust->init();
 }
 
-// ---------------------------- Loop -----------------------------------------
 void loop() {
   Change changeMass = cosco.receive(servo_cam, servo_drill);
 
