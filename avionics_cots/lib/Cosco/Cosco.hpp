@@ -7,12 +7,15 @@
 
 #include "packet_definition.hpp"
 #include "packet_id.hpp"
-#include "HX711.h"
 #include <functional>    // For std::function
 #include <unordered_map> // For std::unordered_map
 #include "Servo.hpp"
 
-
+struct Change {
+  uint8_t id;
+  bool tare;
+  float scale;
+};
 
 class Cosco {
 public:
@@ -68,7 +71,7 @@ public:
      * @param responsePacket 
      * @return null
      */    
-    void receive(Servo_Driver* servo_cam, Servo_Driver* servo_drill);
+    Change receive(Servo_Driver* servo_cam, Servo_Driver* servo_drill);
 
 
     void sendHeartbeat();

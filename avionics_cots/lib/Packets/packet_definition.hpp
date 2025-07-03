@@ -14,11 +14,6 @@ struct LEDMessage {
     uint8_t state;
 };
 
-struct MassRequest {
-    bool tare;
-    float scale;
-};
-
 struct DustData {
     uint16_t pm1_0_std;
     uint16_t pm2_5_std;
@@ -34,10 +29,15 @@ struct DustData {
     uint16_t num_particles_10;
 };
 
+struct MassRequestDrill {
+    bool tare;
+    float scale;
+};
+
 struct FourInOne {
     uint16_t id;
     float temperature;
-    float moisture;
+    float humidity;
     float conductivity;
     float ph;
 };
@@ -61,6 +61,11 @@ struct NPK {
 
 struct Heartbeat {
     uint8_t dummy;
+};
+
+struct MassRequestHD {
+    bool tare;
+    float scale;
 };
 
 struct BMS {

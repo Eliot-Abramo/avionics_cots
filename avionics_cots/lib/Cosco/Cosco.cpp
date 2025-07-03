@@ -58,7 +58,7 @@ void Cosco::sendDustDataPacket(DustData* pkt) {
     proto.send(DustData_ID, pkt, sizeof(DustData));
 }
 
-void Cosco::receive(Servo_Driver* servo_cam, Servo_Driver* servo_drill) {
+Change Cosco::receive(Servo_Driver* servo_cam, Servo_Driver* servo_drill) {
     while (Serial.available()) {
         if (proto.processByte(Serial.read())) {
             const auto &f = proto.frame();
@@ -77,41 +77,27 @@ void Cosco::receive(Servo_Driver* servo_cam, Servo_Driver* servo_drill) {
                         servo_drill->handle_servo();
                     }
                     break;
+
+                case MassDrill_Request_ID:
+                    if (f.length == sizeof(MassRequestDrill)) {
+                        const MassRequestDrill &req = *reinterpret_cast<const MassRequestDrill*>(f.payload.data());
+                        Change changeDrill = {MassDrill_Request_ID, req.tare, req.scale};
+                        return changeDrill;
+                    }
+                    break;
+
+                case MassHD_Request_ID:
+                    if (f.length == sizeof(MassRequestHD)) {
+                        const MassRequestHD &req = *reinterpret_cast<const MassRequestHD*>(f.payload.data());
+                        Change changeHD = {MassHD_Request_ID, req.tare, req.scale};
+                        return changeHD;
+                    }
+                    break;
+
                 default:
                     break;
             }
         }
     }
-
-    // if (Serial.available() < 1) return;
-
-    // uint8_t packet_id = Serial.read();
-
-    // switch (packet_id) {
-    //     case ServoCam_ID:
-    //         if (Serial.available() >= sizeof(ServoRequest)) {
-    //             ServoRequest request;
-    //             Serial.readBytes(reinterpret_cast<char*>(&request), sizeof(ServoRequest));                
-    //             servo_cam->set_request(request);
-    //             servo_cam->handle_servo();   
-    //             // sendServoCamResponse(servo_cam->get_response());
-    //             break;
-    //         }
-
-    //     case ServoDrill_ID:
-    //         if (Serial.available() >= sizeof(ServoRequest)) {
-    //             ServoRequest request;
-    //             Serial.readBytes(reinterpret_cast<char*>(&request), sizeof(ServoRequest));                
-    //             servo_drill->set_request(request);
-    //             servo_drill->handle_servo();
-    //             // sendServoDrillResponse(servo_drill->get_response());
-    //             break;
-    //         }
-
-    //     default:
-    //         break;
-    // }
-
-    // mass_hd->set_scale(100);
-    // printf("Set: %d", mass_hd->get_scale());
+    return Change{0, 0, 0};
 }
