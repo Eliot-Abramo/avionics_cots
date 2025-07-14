@@ -16,59 +16,18 @@ The Avionics-COTS Communication Stack provides a highly optimized, transport-agn
 
 
 ```mermaid
-flowchart TB
-  %% Top Row: Peripherals and Transport Drivers
-  subgraph Top
-    direction LR
-    subgraph Peripherals
-      direction TB
-      Dust["HM330X Dust Sensor"]
-      Load["HX711 Load Cell"]
-      Servo["SG90 Servo Actuators"]
-    end
-    subgraph Transports
-      direction TB
-      I2C["I²C Driver"]
-      PWM["PWM Driver"]
-      SPIProt["SPISlaveProtocol<256,512>"]
-      UARTProt["SerialProtocol<256>"]
-    end
+flowchart LR
+  subgraph Sensors
+    HM330X[HM330X Dust Sensor] --> SPIDriver[SPISlaveProtocol<256,512>]
+    HX711[HX711 Load Cell]     --> I2CDriver[I²C Interface]
+    SG90[SG90 Servos]          --> PWMControl[Onboard PWM]
   end
-
-  %% Bottom Row: Processing and Host Interface
-  subgraph Bottom
-    direction LR
-    subgraph Processing
-      direction TB
-      Parser["FSM Parser"]
-      CRC["CRC-16/X-25 Checker"]
-      MUX["Byte-Level MUX (Failover)"]
-      Cosco["Cosco Router"]
-    end
-    subgraph Host
-      direction TB
-      UARTLink["UART (115200 baud)"]
-      SPILink["SPI Master (8 MHz)"]
-      HostApp["decode_mux & UI"]
-    end
+  SPIDriver --> MUX[Byte-Level MUX]
+  SerialProtocol[SerialProtocol<256>] --> MUX
+  MUX --> Cosco[Cosco Router]
+  subgraph Host
+    Cosco --> UARTLink[UART ↔ Ground Station]
   end
-
-  %% Connections
-  Dust    --> I2C
-  Load    --> I2C
-  Servo   --> PWM
-  I2C     --> Parser
-  PWM     --> Parser
-  SPIProt --> Parser
-  UARTProt--> Parser
-  Parser  --> CRC
-  CRC     --> MUX
-  MUX     --> Cosco
-  Cosco   --> UARTLink
-  Cosco   --> SPILink
-  UARTLink--> HostApp
-  SPILink --> HostApp
-
 
 ```
 
