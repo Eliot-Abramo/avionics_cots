@@ -2,6 +2,21 @@
 
 The Avionics-COTS Communication Stack provides a highly optimized, transport-agnostic, real-time communication solution specifically designed for embedded avionics systems. Extensively tested in a Mars-style rover platform, this stack ensures reliable, deterministic, and zero-copy communication over UART and SPI interfaces.
 
+```mermaid
+flowchart LR
+  subgraph Sensors
+    HM330X[HM330X Dust Sensor] --> SPIDriver[SPISlaveProtocol<256,512>]
+    HX711[HX711 Load Cell]     --> I2CDriver[I²C Interface]
+    SG90[SG90 Servos]          --> PWMControl[Onboard PWM]
+  end
+  SPIDriver --> MUX[Byte-Level MUX]
+  SerialProtocol[SerialProtocol<256>] --> MUX
+  MUX --> Cosco[Cosco Router]
+  subgraph Host
+    Cosco --> UARTLink[UART ↔ Ground Station]
+  end
+```
+
 ---
 
 ## 🌟 Key Technical Features
