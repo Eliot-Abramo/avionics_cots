@@ -20,14 +20,14 @@
 */
 
 // Pin definition
-#define DRILL_DOUT 16
-#define DRILL_SCK   4
-#define HD_DOUT    15
-#define HD_SCK      2
+#define HD_DOUT 35
+#define HD_SCK   32
+#define DRILL_DOUT    25
+#define DRILL_SCK     26
 
-#define SERVO_DRILL_PIN 13
+#define SERVO_DRILL_PIN 16
 #define SERVO_DRILL_CHAN 1
-#define SERVO_CAM_PIN   12
+#define SERVO_CAM_PIN   17
 #define SERVO_CAM_CHAN  0
 
 
@@ -215,3 +215,79 @@ void loop() {
     //     // if (c == 'd') { Serial.printf("Drill: %.2f g | HD: %.2f g\n", weight_drill, weight_hd); }
     // }
 }
+
+
+// #include <GyverHX711.h>
+// #include <string.h>
+// #define LoadCellSCK 32
+// #define LoadCellDTA 35
+// #define avgSize 10
+// // HX711 sensor configuration
+// GyverHX711 LoadCell(LoadCellDTA, LoadCellSCK, HX_GAIN64_A);
+// float Offset = 0;
+// long loadcellreading = 0;
+// float currentreading = 0;
+// float slope = 0.01028;
+// float readings[avgSize] = {0};
+// float readweight = 0;
+// float currentweight = 0;
+
+// void shift(float *array , int N, float valueIn){  //shifts all array values left and adds valueIn at position N-1
+//   for(int i = 1; i<N-1 ; i++){
+//     array[i-1] = array[i];
+//   }
+//   array[N-1] = valueIn;
+// }
+
+// float movingAverage(float *array , int N){    //computes average of array of size N
+//   if(N<=0){return 0;}
+//   float sum = 0;
+//   float average = 0;
+//   for(int i = 0 ; i<N ; i++){
+//     sum += array[i];
+//   }
+//   average = sum/N;
+//   //Serial.println(sum);
+//   return average;
+// }
+
+
+// void updateReadings(){
+//   loadcellreading = LoadCell.read();
+//   shift(readings, avgSize, (float)loadcellreading);
+//   currentreading = movingAverage(readings, avgSize);
+//   currentweight = (currentreading - Offset)* slope;
+// }
+
+// void tare(){
+//   Offset = currentreading;
+//   Serial.print("Tare complete. Offset: ");
+//   Serial.println(Offset);
+//   delay(100);
+// }
+
+// void setup() {
+//   Serial.begin(115200);
+//   // Initialize HX711 sensor
+//   delay(100);
+//   Serial.println("Setup started.");
+//   LoadCell.tare();
+//   Offset = LoadCell.read();
+//   Serial.println("Setup complete.");
+// }
+
+// void loop() {
+//   if(Serial.read() == 't'){
+//     tare();
+//   }
+//   updateReadings();
+//   if((millis() % (unsigned long)300) == 0){
+//     /* Serial.print("Value in:\t");
+//     Serial.print(loadcellreading);
+//     Serial.println("g"); */
+//     //Serial.print("Average:\t");
+//     Serial.println(currentweight);
+//     //Serial.println("g");
+//   }
+//   delay(1);
+// }
