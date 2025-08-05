@@ -6,7 +6,7 @@ LEDStrip::LEDStrip(int pin, int numLeds)
 
 void LEDStrip::begin() {
     _strip.begin();
-    _strip.setBrightness(50);
+    _strip.setBrightness(70);
     _strip.show();
     for (uint8_t i = 0; i < MAX_SYSTEMS; ++i) {
         _cmds[i].mode = 0;   // default off
