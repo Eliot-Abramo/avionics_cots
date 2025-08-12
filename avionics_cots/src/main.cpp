@@ -38,12 +38,17 @@ Servo_Driver* servo_drill = new Servo_Driver();
 Dust* dust = new Dust();
 
 constexpr uint8_t AVG_SIZE = 10;
-// LoadCellHX lcDrill(DRILL_DOUT, DRILL_SCK);
-// LoadCellHX lcHD   (HD_DOUT,    HD_SCK);
 
 GyverHX711 mass_drill(DRILL_DOUT, DRILL_SCK, HX_GAIN64_A);
 GyverHX711 mass_hd   (HD_DOUT,    HD_SCK,   HX_GAIN64_A);
 
+/******************************* Mass Code  *******************************************/
+/**
+ * CHANGE THIS PLEASE
+ * I didn't have time to segment this into pointers and a different class so it lives here for now.
+ * But please clean this up and create a class.
+ * 
+ */
 float drillBuf[AVG_SIZE] = {0};
 float hdBuf[AVG_SIZE]    = {0};
 
@@ -97,6 +102,8 @@ void tareScales() {
     }
     delay(100);
 }
+/*******************************************************************************************/
+
 
 void setup() {
   // lower CPU clock to 80 MHz (saves power, reduces noise)
@@ -107,20 +114,28 @@ void setup() {
 
   Serial.begin(115200);
 
-  // lcDrill.begin();
+  // Mass
   mass_drill.tare();  
   offset_drill = mass_drill.read();
 
-  // lcHD.begin();
   mass_hd.tare();  
   offset_hd = mass_hd.read();
 
+  // Servo
   servo_cam->init(SERVO_CAM_PIN, SERVO_CAM_CHAN);
   servo_drill->init(SERVO_DRILL_PIN, SERVO_DRILL_CHAN);
+
+  // Dust
   dust->init();
 }
 
 void loop() {
+  /**
+   * Receive command from Nexus and determine if change is needed 
+   * Change is only for the Mass. Part of the things THAT YOU NEED TO CHANGE PLEASE.
+   * This just allows for a very very simple fsm and direct access.
+   * Time was the issue here, so please take the time to think of something better :)
+   */
   Change changeMass = nexus.receive(servo_cam, servo_drill);
 
   switch (changeMass.id) {
@@ -140,7 +155,6 @@ void loop() {
 
       nexus.sendMassPacket(&drill_change, MassDrill_ID);
       delay(100);
-      
       break;
     }
 
@@ -184,6 +198,7 @@ void loop() {
     };
     nexus.sendMassPacket(&hd, MassHD_ID);
 
+    // If mass above 200g for the drill, then we just put the Servo back under rover.
     if(weight_drill >= 200){
       ServoRequest request = {
         ServoDrill_ID,
@@ -193,7 +208,6 @@ void loop() {
       servo_drill->set_request(request);
       servo_drill->handle_servo();   
     }
-
     // Serial.printf("Drill: %.2f g | HD: %.2f g\n", drill.mass, hd.mass);
   }
 
