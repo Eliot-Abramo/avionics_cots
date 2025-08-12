@@ -184,10 +184,10 @@ void loop() {
     };
     cosco.sendMassPacket(&hd, MassHD_ID);
 
-    if(drill.mass >= 200){
+    if(weight_drill >= 200){
       ServoRequest request = {
         ServoDrill_ID,
-        300,
+        -1000,
         false
       };
       servo_drill->set_request(request);
