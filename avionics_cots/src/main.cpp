@@ -8,15 +8,15 @@
 #include <GyverHX711.h>
 #include "soc/rtc.h"
 #include "packet_definition.hpp"
-#include "Cosco.hpp"
+#include "Nexus.hpp"
 #include "Servo.hpp"
 #include "Dust_Driver.hpp"
 
 /**
  * servo id 1 = cam front
- * servo id 2 = drill clapet 
- * mass id 3 = mass drill
- * mass id 4 = mass rover
+ * servo id 3 = drill clapet 
+ * mass id 5 = mass drill
+ * mass id 7 = mass hd
 */
 
 // Pin definition
@@ -32,7 +32,7 @@
 
 
 // Type definitions
-Cosco cosco;
+Nexus nexus;
 Servo_Driver* servo_cam = new Servo_Driver();
 Servo_Driver* servo_drill = new Servo_Driver();
 Dust* dust = new Dust();
@@ -121,7 +121,7 @@ void setup() {
 }
 
 void loop() {
-  Change changeMass = cosco.receive(servo_cam, servo_drill);
+  Change changeMass = nexus.receive(servo_cam, servo_drill);
 
   switch (changeMass.id) {
 
@@ -138,7 +138,7 @@ void loop() {
         weight_drill
       };
 
-      cosco.sendMassPacket(&drill_change, MassDrill_ID);
+      nexus.sendMassPacket(&drill_change, MassDrill_ID);
       delay(100);
       
       break;
@@ -158,7 +158,7 @@ void loop() {
         weight_drill
       };
 
-      cosco.sendMassPacket(&hd_change, MassDrill_ID);
+      nexus.sendMassPacket(&hd_change, MassDrill_ID);
 
       break;
     }
@@ -176,13 +176,13 @@ void loop() {
       MassDrill_ID,
       weight_drill
     };
-    cosco.sendMassPacket(&drill, MassDrill_ID);
+    nexus.sendMassPacket(&drill, MassDrill_ID);
 
     MassPacket hd = {
       MassHD_ID,
       weight_hd
     };
-    cosco.sendMassPacket(&hd, MassHD_ID);
+    nexus.sendMassPacket(&hd, MassHD_ID);
 
     if(weight_drill >= 200){
       ServoRequest request = {
@@ -202,92 +202,11 @@ void loop() {
     if(dust->is_alive()){
       DustData dust_packet;
       dust->loop(&dust_packet);
-      cosco.sendDustDataPacket(&dust_packet);
+      nexus.sendDustDataPacket(&dust_packet);
     }
   }
 
-  cosco.sendHeartbeat();
+  nexus.sendHeartbeat();
 
-    // // ---- Serial helpers ----
-    // if (Serial.available()) {
-    //     char c = Serial.read();
-    //     if (c == 't') { tareScales(); Serial.println(F("Tared.")); }
-    //     // if (c == 'd') { Serial.printf("Drill: %.2f g | HD: %.2f g\n", weight_drill, weight_hd); }
-    // }
 }
 
-
-// #include <GyverHX711.h>
-// #include <string.h>
-// #define LoadCellSCK 32
-// #define LoadCellDTA 35
-// #define avgSize 10
-// // HX711 sensor configuration
-// GyverHX711 LoadCell(LoadCellDTA, LoadCellSCK, HX_GAIN64_A);
-// float Offset = 0;
-// long loadcellreading = 0;
-// float currentreading = 0;
-// float slope = 0.01028;
-// float readings[avgSize] = {0};
-// float readweight = 0;
-// float currentweight = 0;
-
-// void shift(float *array , int N, float valueIn){  //shifts all array values left and adds valueIn at position N-1
-//   for(int i = 1; i<N-1 ; i++){
-//     array[i-1] = array[i];
-//   }
-//   array[N-1] = valueIn;
-// }
-
-// float movingAverage(float *array , int N){    //computes average of array of size N
-//   if(N<=0){return 0;}
-//   float sum = 0;
-//   float average = 0;
-//   for(int i = 0 ; i<N ; i++){
-//     sum += array[i];
-//   }
-//   average = sum/N;
-//   //Serial.println(sum);
-//   return average;
-// }
-
-
-// void updateReadings(){
-//   loadcellreading = LoadCell.read();
-//   shift(readings, avgSize, (float)loadcellreading);
-//   currentreading = movingAverage(readings, avgSize);
-//   currentweight = (currentreading - Offset)* slope;
-// }
-
-// void tare(){
-//   Offset = currentreading;
-//   Serial.print("Tare complete. Offset: ");
-//   Serial.println(Offset);
-//   delay(100);
-// }
-
-// void setup() {
-//   Serial.begin(115200);
-//   // Initialize HX711 sensor
-//   delay(100);
-//   Serial.println("Setup started.");
-//   LoadCell.tare();
-//   Offset = LoadCell.read();
-//   Serial.println("Setup complete.");
-// }
-
-// void loop() {
-//   if(Serial.read() == 't'){
-//     tare();
-//   }
-//   updateReadings();
-//   if((millis() % (unsigned long)300) == 0){
-//     /* Serial.print("Value in:\t");
-//     Serial.print(loadcellreading);
-//     Serial.println("g"); */
-//     //Serial.print("Average:\t");
-//     Serial.println(currentweight);
-//     //Serial.println("g");
-//   }
-//   delay(1);
-// }

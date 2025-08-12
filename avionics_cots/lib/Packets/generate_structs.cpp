@@ -1,6 +1,14 @@
 /**
  * @file generate_structs.hpp
  * @author Eliot Abramo
+ * 
+ * @brief convert avionics custom_msg into C++ structs so they can be leveraged by the code.
+ * 
+ * @details to execute this you need to use the ./create_custom_msg.sh script
+ * 
+ * @attention If when you generate the structs there is an error (i.e unrecognized type), go to
+ * line 122 and add an else if(){} for your type.
+ * 
 */
 
 #ifdef GENERATE_MSG //defined in bash script

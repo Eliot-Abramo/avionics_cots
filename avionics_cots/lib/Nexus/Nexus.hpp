@@ -1,9 +1,12 @@
 /**
- * @file Cosco.hpp
+ * @file Nexus.hpp
  * @author Eliot Abramo
+ * @brief Direct bus communication for ESP32-
+ *  This file is the “glue” in the middle.                                                │
 */
-#ifndef COSCO_HPP
-#define COSCO_HPP
+
+#ifndef NEXUS_HPP
+#define NEXUS_HPP
 
 #include "packet_definition.hpp"
 #include "packet_id.hpp"
@@ -11,23 +14,27 @@
 #include <unordered_map> // For std::unordered_map
 #include "Servo.hpp"
 
+/**
+ * @brief Change struct helps handle the Mass sensor tare requests from the CS.
+ * Library default constructors don't handle pointers well and makes stack panic.
+ */
 struct Change {
   uint8_t id;
   bool tare;
   float scale;
 };
 
-class Cosco {
+class Nexus {
 public:
     /**
-     * @brief Create a new Cosco Object
+     * @brief Create a new Nexus Object
      */
-    Cosco();
+    Nexus();
     
     /**
-     * @brief Destroys a Cosco Object. Should unalocate any pointers and memory used up in class
+     * @brief Destroys a Nexus Object. Should unalocate any pointers and memory used up in class
      */    
-    ~Cosco();
+    ~Nexus();
     
     /**
      * @brief Send mass data  packet
@@ -38,30 +45,12 @@ public:
     void sendMassPacket(MassPacket *responsePacket, uint8_t ID);
 
     /**
-     * @brief Send mass configuration packet
-     * 
-     * @param requestPacket: pointer to packet to be sent. Defined in Packets->->packet_definition.hpp
-     * @return null 
-     */
-    // void sendServoRequestPacket(ServoRequest* requestPacket);
-
-    /**
-     * @brief Send mass configuration response packet
-     * 
-     * @param responsePacket: pointer to packet to be sent. Defined in Packets->->packet_definition.hpp
-     * @return null 
-     */
-    // void sendServoCamResponse(ServoResponse* pkt);
-    // void sendServoDrillResponse(ServoResponse* pkt);
-
-    /**
      * @brief Send sensor data packet
      * 
      * @param dataPacket: pointer to packet to be sent. Defined in Packets->->packet_definition.hpp
      * @return null 
      */
     void sendDustDataPacket(DustData *dataPacket);
-
 
     /**
      * @brief functions that receive commands  
@@ -73,10 +62,12 @@ public:
      */    
     Change receive(Servo_Driver* servo_cam, Servo_Driver* servo_drill);
 
-
+    /**
+     * @brief Send heartbeat packet
+     * @return null
+     */
     void sendHeartbeat();
-
 
 };
 
-#endif /* COSCO_HPP */
+#endif /* Nexus_HPP */

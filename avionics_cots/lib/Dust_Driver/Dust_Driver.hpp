@@ -8,8 +8,8 @@
 #include <Seeed_HM330X.h>
 #include <Arduino.h>
 #include "driver/ledc.h"
-// #include "monitor.hpp"
 #include "packet_definition.hpp"
+// #include "monitor.hpp"
 
 #ifdef ARDUINO_SAMD_VARIANT_COMPLIANCE
     #define SERIAL_OUTPUT SerialUSB
@@ -43,7 +43,6 @@
 
 // end of buffer
 #define CHECKSUM            29-1    // 2 bytes
-
 #define BUFSIZE             29
 
 class Dust
@@ -76,10 +75,6 @@ public:
      * @return alive boolean
      */
     bool is_alive();
-
-    void set_old_time(unsigned long oldtime);
-    unsigned long get_old_time();
-    void set_alive(bool isAlive);
 
 private:
     HM330X* sensor = nullptr;

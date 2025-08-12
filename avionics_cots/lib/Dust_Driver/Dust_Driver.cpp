@@ -21,25 +21,13 @@ void Dust::init() {
     // dust_monitor.log("Initializing Dust Sensor");
     if (sensor->init(I2C_DUST_SDA, I2C_DUST_SCL)) {
         alive = false;
-        // Serial.println("failed");
+        // dust_monitor.log("failed");
         // dust_monitor.log("Dust Sensor init failed");
         return;
     }
     alive = true;
 
     // dust_monitor.log("Dust Sensor Initialized");
-}
-
-void Dust::set_old_time(unsigned long lastSampleTime){
-    lastSampleTime_ = lastSampleTime;
-}
-
-unsigned long Dust::get_old_time(){
-    return lastSampleTime_;
-}
-
-void Dust::set_alive(bool isAlive){
-    alive = isAlive;
 }
 
 void Dust::loop(DustData *dustData) {

@@ -74,9 +74,6 @@ std::vector<std::string> split(std::string s, std::string delimiter) {
 
 
 void Servo_Driver::handle_servo() {
-    // std::string to_parse = buffer;
-    // std::vector<std::string> parsed = split(to_parse, ",");
-
     if (servoRequest != nullptr) {
         int32_t new_angle = angle + servoRequest->increment;
         if (servoRequest->zero_in) { //check if zero_in was requested

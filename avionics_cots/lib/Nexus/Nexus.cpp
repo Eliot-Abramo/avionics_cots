@@ -1,8 +1,8 @@
 /**
- * @file Cosco.cpp
+ * @file Nexus.cpp
  * @author Eliot Abramo
 */
-#include "Cosco.hpp"
+#include "Nexus.hpp"
 #include <Wire.h>
 #include <Arduino.h>
 #include <SerialProtocol.hpp>
@@ -12,18 +12,18 @@
 static SerialProtocol<128> proto(Serial);
 
 
-Cosco::Cosco()
+Nexus::Nexus()
 {
     Serial.begin(115200);
 }
 
-Cosco::~Cosco(){}
+Nexus::~Nexus(){}
 
-void Cosco::sendMassPacket(MassPacket* pkt, uint8_t ID) {
+void Nexus::sendMassPacket(MassPacket* pkt, uint8_t ID) {
     proto.send(ID, pkt, sizeof(MassPacket));
 }
 
-void Cosco::sendHeartbeat(){
+void Nexus::sendHeartbeat(){
     static uint32_t last_heartbeat = 0;
     if (millis() - last_heartbeat >= 500) {               // every 1 s
         uint8_t dummy = 10;
@@ -31,34 +31,12 @@ void Cosco::sendHeartbeat(){
         last_heartbeat = millis();
     }
 }
-// void Cosco::sendServoRequestPacket(ServoRequest* pkt) {
-//     uint8_t buffer[sizeof(ServoRequest) + 1];
-//     buffer[0] = ServoConfigRequest_ID;
-//     memcpy(buffer + 1, pkt, sizeof(ServoRequest));
-//     Serial.write(buffer, sizeof(buffer)); 
-//     Serial.flush();       // make sure it's all sent
-//     delay(5);             // give host time to react
-// }
 
-// void Cosco::sendServoCamResponse(ServoResponse* pkt) {
-//     uint8_t buffer[sizeof(ServoResponse) + 1];
-//     buffer[0] = ServoCam_ID;
-//     memcpy(buffer + 1, pkt, sizeof(ServoResponse));
-//     Serial.write(buffer, sizeof(buffer));
-// }
-
-// void Cosco::sendServoDrillResponse(ServoResponse* pkt) {
-//     uint8_t buffer[sizeof(ServoResponse) + 1];
-//     buffer[0] = ServoDrill_ID;
-//     memcpy(buffer + 1, pkt, sizeof(ServoResponse));
-//     Serial.write(buffer, sizeof(buffer));
-// }
-
-void Cosco::sendDustDataPacket(DustData* pkt) {
+void Nexus::sendDustDataPacket(DustData* pkt) {
     proto.send(DustData_ID, pkt, sizeof(DustData));
 }
 
-Change Cosco::receive(Servo_Driver* servo_cam, Servo_Driver* servo_drill) {
+Change Nexus::receive(Servo_Driver* servo_cam, Servo_Driver* servo_drill) {
     while (Serial.available()) {
         if (proto.processByte(Serial.read())) {
             const auto &f = proto.frame();
