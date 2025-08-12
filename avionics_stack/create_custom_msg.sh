@@ -19,7 +19,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Define input folder and output file for the executable.
-INPUT_FOLDER="msg/not_hd/"
+INPUT_FOLDER="msg/avionics/"
 OUTPUT_FILE="all_structs.generated.hpp"
 
 # Execute the compiled program.
